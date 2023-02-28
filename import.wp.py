@@ -11,6 +11,10 @@ def load_schema(con):
     cur = con.cursor()
     con.execute(schema_sql)
 
+def truncate_posts(con):
+    cur = con.cursor()
+    con.execute("DELETE FROM wp_posts")
+
 def load_posts(con):
     with open('wp-legacy/posts.sql') as f:
         lines = [line.rstrip("\r\n ") for line in f]
@@ -41,6 +45,7 @@ def load_posts(con):
 def main():
     con = get_connection()
     load_schema(con)
+    truncate_posts(con)
     load_posts(con)
 
 if __name__ == "__main__":
