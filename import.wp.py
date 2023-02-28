@@ -1,3 +1,4 @@
+import os
 import sqlite3
 
 def get_connection():
@@ -58,7 +59,6 @@ def prune_rows_to_awesome_dict(column_names, rows):
         pparent = d["post_parent"]
         ptype   = d["post_type"]
 
-
         if ptype == "attachment":
             continue
         elif ptype == "revision":
@@ -71,6 +71,34 @@ def prune_rows_to_awesome_dict(column_names, rows):
                 awesome[pid]["ID"] = pid
                 awesome[pid]["post_type"] = ptype
     return awesome
+
+def mkdir(p):
+    if not os.path.exists(p):
+        os.makedirs(p)
+
+def export_post(post):
+    POST_DATE  = post["post_date"]
+    POST_MODI  = post["post_modified"]
+    POST_NAME  = post["post_name"]
+    POST_TITLE = post["post_title"]
+    POST_TYPE  = post["post_type"]
+    fdir=None
+    fname=None
+    if POST_TYPE == "post":
+        fdir = "../www-hugo/content/posts"
+    elif POST_TYPE == "page":
+        fdir = "../www-hugo/content"
+    else:
+        print(f"IGNORED: Unknown type {POST_TYPE}")
+        return
+    mkdir(fdir)
+    fname=POST_NAME + ".md"
+    with open(fdir + "/" + fname, "w") as f:
+        f.write("---\n")
+        f.write(f"title: {POST_TITLE}\n")
+        f.write(f"date: {POST_DATE}\n")
+        f.write(f"lastmod: {POST_MODI}\n")
+        f.write("---\n")
 
 def export_posts(con):
     query = "SELECT "\
@@ -98,7 +126,7 @@ def export_posts(con):
     for a in awesome.values():
         if a["post_status"] != "publish":
             continue
-        print(a)
+        export_post(a)
 
 def main():
     con = get_connection()
