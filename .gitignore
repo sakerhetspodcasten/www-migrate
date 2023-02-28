@@ -1,1 +1,3 @@
-.legacy/
+.*.sw?
+wp-legacy/*.db
+wp-legacy/*.sql

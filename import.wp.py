@@ -1,34 +1,39 @@
 import sqlite3
 
 def get_connection():
-    con = sqlite3.connect(".legacy/sqllite.db")
+    con = sqlite3.connect("wp-legacy/sqllite.db")
     return con
 
 def load_schema(con):
-    with open('.legacy/schema.sql') as f:
+    with open('wp-legacy/posts.schema') as f:
         lines = [line.rstrip("\r ") for line in f]
     schema_sql = "\n".join(lines)
     cur = con.cursor()
     con.execute(schema_sql)
 
 def load_posts(con):
-    with open('.legacy/posts.sql') as f:
+    with open('wp-legacy/posts.sql') as f:
         lines = [line.rstrip("\r\n ") for line in f]
     
-    #raise Exception(len(lines))
-
     posts_sql = ""
+    line_count = 0
+    inserts = 0
     for line in lines:
-        print(f"line: [ {line} ]")
+        #print(f"line: [ {line} ]")
         posts_sql = posts_sql + line
         if line.endswith(");"):
             posts_sql = posts_sql.replace("\\\"", "\"\"")
-            print(f"posts_sql: [ {posts_sql} ]")
+            #print(f"posts_sql: [ {posts_sql} ]")
+            #print(f"Execute SQL, {line_count} line(s).")
             cur = con.cursor()
             con.execute(posts_sql)
+            inserts = inserts + 1
+            line_count = 0
             posts_sql = ""
         else:
+            line_count = line_count + 1
             posts_sql = posts_sql + "\n"
+    print(f"load_posts(): executed {inserts} statement(s)")
     if posts_sql != "":
         raise Exception(f"Expected last string empty, got [ {posts_sql} ]")
 
