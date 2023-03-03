@@ -108,13 +108,13 @@ def arr_to_str(arr):
 
 def wordpress_to_markdown(post):
     lines = post.replace('\r','\n').split("\n")
+    reg_junk = re.compile(' (rel|target|title)="[^"]*"')
     reg_li = re.compile('<li[^>]*>')
     reg_link = re.compile('<a href="([a-zA-Z0-9.:/_?#&=-]+)">([^<]+)</a>')
     reg_span = re.compile('<(span|p|ul|div)[^>]*>')
     ret = []
     for line in lines:
-        line = line.replace(' target="_blank"', '')
-        line = line.replace(' rel="noopener"', '')
+        line = reg_junk.sub('', line)
         line = line.replace('&amp;', '&')
         line = line.strip(' ')
         line = reg_span.sub("", line)
@@ -126,6 +126,8 @@ def wordpress_to_markdown(post):
         if line.startswith("<strong>"):
             line = line.replace('<strong>','# ')
         line = line.replace('<wbr />', '\n')
+        line = line.replace('<!-- wp:paragraph -->', '')
+        line = line.replace('<!-- /wp:paragraph -->','\n')
         line = line.replace('</b>', '\n')
         line = line.replace('</i>', '\n')
         line = line.replace('</div>', '\n')
