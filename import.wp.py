@@ -96,8 +96,8 @@ def append_short_lines(out, line):
     except ValueError as ve:
         out.append(line)
         return
-    a = line[:index].strip()
-    b = line[index:].strip()
+    a = line[:index].strip(' ')
+    b = line[index:].strip(' ')
     out.append(a)
     append_short_lines(out, b)
 
