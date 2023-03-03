@@ -108,14 +108,29 @@ def arr_to_str(arr):
 
 def wordpress_to_markdown(post):
     lines = post.replace('\r','\n').split("\n")
-    reg_link = re.compile('<a href="([a-zA-Z0-9.:/_-]+)">([^<]+)</a>')
+    reg_li = re.compile('<li[^>]*>')
+    reg_link = re.compile('<a href="([a-zA-Z0-9.:/_?=-]+)">([^<]+)</a>')
+    reg_span = re.compile('<(span|p|ul|div)[^>]*>')
     ret = []
     for line in lines:
-        line = line.replace('<p class="p1">', '\n')
+        #line = line.replace('<p class="p1">', '\n')
+        line = reg_span.sub("", line)
+        line = reg_li.sub("* ", line)
+        if line.startswith("<b>"):
+            line = line.replace('<b>','# ')
+        if line.startswith("<i>"):
+            line = line.replace('<i>','> ')
         if line.startswith("<strong>"):
             line = line.replace('<strong>','# ')
+        line = line.replace('<wbr />', '\n')
+        line = line.replace('</b>', '\n')
+        line = line.replace('</i>', '\n')
+        line = line.replace('</div>', '\n')
+        line = line.replace('</li>', '\n')
         line = line.replace('</p>', '\n')
+        line = line.replace('</span>', '\n')
         line = line.replace('</strong>', '')
+        line = line.replace('</ul>', '\n')
         line = reg_link.sub(r'[\2](\1)', line)
         append_short_lines(ret, line)
     return arr_to_str( ret )
