@@ -123,7 +123,7 @@ def wordpress_to_markdown(post):
         line = reg_span.sub("", line)
         line = reg_li.sub("* ", line)
         if line.startswith("<b>"):
-            line = line.replace('<b>','# ')
+            line = line.replace('<b>','## ')
         else:
             line = line.replace('<b>','')
         if line.startswith("<i>"):
@@ -131,7 +131,7 @@ def wordpress_to_markdown(post):
         else:
             line = line.replace('<i>','')
         if line.startswith("<strong>"):
-            line = line.replace('<strong>','# ')
+            line = line.replace('<strong>','## ')
         else:
             line = line.replace('<strong>','')
         line = line.replace('<wbr />', '\n')
