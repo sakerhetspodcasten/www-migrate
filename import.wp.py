@@ -125,6 +125,8 @@ def wordpress_to_markdown(post):
             line = line.replace('<i>','> ')
         if line.startswith("<strong>"):
             line = line.replace('<strong>','# ')
+        else:
+            line = line.replace('<strong>','')
         line = line.replace('<wbr />', '\n')
         line = line.replace('<!-- wp:paragraph -->', '')
         line = line.replace('<!-- /wp:paragraph -->','\n')
