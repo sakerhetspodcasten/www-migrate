@@ -107,7 +107,10 @@ def arr_to_str(arr):
     return ret
 
 def wordpress_to_markdown(post):
-    lines = post.replace('\r','\n').split("\n")
+    lines = post\
+            .replace('\r','\n')\
+            .replace('\n</a>',' </a>')\
+            .split("\n")
     reg_junk = re.compile(' (dir|rel|data-saferedirecturl|style|target|title)="[^"]*"')
     reg_em = re.compile('<[/]*em>')
     reg_li = re.compile('<li[^>]*>')
