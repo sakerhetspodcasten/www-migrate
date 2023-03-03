@@ -109,20 +109,27 @@ def arr_to_str(arr):
 def wordpress_to_markdown(post):
     lines = post.replace('\r','\n').split("\n")
     reg_junk = re.compile(' (rel|data-saferedirecturl|target|title)="[^"]*"')
+    reg_em = re.compile('<[/]*em>')
     reg_li = re.compile('<li[^>]*>')
     reg_link = re.compile('<a href="([^"]+)">([^<]+)</a>')
-    reg_span = re.compile('<(span|p|ul|div)[^>]*>')
+    reg_span = re.compile('<(script|span|style|p|ul|div)[^>]*>')
     ret = []
     for line in lines:
+        line = line.replace('|','\\|')
         line = reg_junk.sub('', line)
         line = line.replace('&amp;', '&')
         line = line.strip(' ')
+        line = reg_em.sub("__", line)
         line = reg_span.sub("", line)
         line = reg_li.sub("* ", line)
         if line.startswith("<b>"):
             line = line.replace('<b>','# ')
+        else:
+            line = line.replace('<b>','')
         if line.startswith("<i>"):
             line = line.replace('<i>','> ')
+        else:
+            line = line.replace('<i>','')
         if line.startswith("<strong>"):
             line = line.replace('<strong>','# ')
         else:
@@ -136,6 +143,7 @@ def wordpress_to_markdown(post):
         line = line.replace('</li>', '\n')
         line = line.replace('</p>', '\n')
         line = line.replace('</span>', '\n')
+        line = line.replace('</script>', '')
         line = line.replace('</strong>', '')
         line = line.replace('</ul>', '\n')
         line = reg_link.sub(r'[\2](\1)', line)
