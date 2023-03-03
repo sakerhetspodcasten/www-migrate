@@ -112,6 +112,7 @@ def wordpress_to_markdown(post):
             .replace('\n</a>',' </a>')\
             .split("\n")
     reg_junk = re.compile(' (dir|rel|data-saferedirecturl|style|target|title)="[^"]*"')
+    reg_blockquoute = re.compile('<[/]*blockquote[^>]*>')
     reg_em = re.compile('<[/]*em>')
     reg_li = re.compile('<li[^>]*>')
     reg_link = re.compile('<a href="([^"]+)">([^<]+)</a>')
@@ -122,6 +123,7 @@ def wordpress_to_markdown(post):
         line = reg_junk.sub('', line)
         line = line.replace('&amp;', '&')
         line = line.strip(' ')
+        line = reg_blockquoute.sub("", line)
         line = reg_em.sub("__", line)
         line = reg_span.sub("", line)
         line = reg_li.sub("* ", line)
@@ -149,7 +151,8 @@ def wordpress_to_markdown(post):
         line = line.replace('</script>', '')
         line = line.replace('</strong>', '')
         line = line.replace('</ul>', '\n')
-        line = reg_link.sub(r'[\2](\1)', line)
+        line = reg_link.sub(r'[\2](\1) ', line)
+        line = line.replace("&nbsp;", " ")
         append_short_lines(ret, line)
     return arr_to_str( ret )
 
