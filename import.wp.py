@@ -82,8 +82,32 @@ def date_format_with_tea( boring_date ):
     tea = boring_date.replace(' ', 'T')
     return tea
 
+def append_short_lines(out, line):
+    if len(line) < 100:
+        out.append(line)
+        return
+    if " " not in line:
+        out.append(line)
+        return
+    a=None
+    b=None
+    try:
+        index = line.index(" ", 80)
+    except ValueError as ve:
+        out.append(line)
+        return
+    a = line[:index].strip()
+    b = line[index:].strip()
+    out.append(a)
+    append_short_lines(out, b)
+
+def arr_to_str(arr):
+    ret = "\n".join(arr)
+    ret = ret + "\n"
+    return ret
+
 def wordpress_to_markdown(post):
-    lines = post.replace('\r','').split("\n")
+    lines = post.replace('\r','\n').split("\n")
     reg_link = re.compile('<a href="([a-zA-Z0-9.:/_-]+)">([^<]+)</a>')
     ret = []
     for line in lines:
@@ -93,10 +117,8 @@ def wordpress_to_markdown(post):
         line = line.replace('</p>', '\n')
         line = line.replace('</strong>', '')
         line = reg_link.sub(r'[\2](\1)', line)
-        ret.append(line)
-    ret = "\n".join(ret)
-    ret = ret + "\n"
-    return ret
+        append_short_lines(ret, line)
+    return arr_to_str( ret )
 
 def export_post(post):
     POST_CONT  = post["post_content"]
