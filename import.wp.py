@@ -1,4 +1,5 @@
 import os
+import re
 import sqlite3
 import yaml
 
@@ -83,6 +84,7 @@ def date_format_with_tea( boring_date ):
 
 def wordpress_to_markdown(post):
     lines = post.replace('\r','').split("\n")
+    reg_link = re.compile('<a href="([a-zA-Z0-9.:/_-]+)">([^<]+)</a>')
     ret = []
     for line in lines:
         line = line.replace('<p class="p1">', '\n')
@@ -90,6 +92,7 @@ def wordpress_to_markdown(post):
             line = line.replace('<strong>','# ')
         line = line.replace('</p>', '\n')
         line = line.replace('</strong>', '')
+        line = reg_link.sub(r'[\2](\1)', line)
         ret.append(line)
     ret = "\n".join(ret)
     ret = ret + "\n"
