@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import yaml
 
 def get_connection():
     con = sqlite3.connect("wp-legacy/sqllite.db")
@@ -76,9 +77,28 @@ def mkdir(p):
     if not os.path.exists(p):
         os.makedirs(p)
 
+def date_format_with_tea( boring_date ):
+    tea = boring_date.replace(' ', 'T')
+    return tea
+
+def wordpress_to_markdown(post):
+    lines = post.replace('\r','').split("\n")
+    ret = []
+    for line in lines:
+        line = line.replace('<p class="p1">', '\n')
+        if line.startswith("<strong>"):
+            line = line.replace('<strong>','# ')
+        line = line.replace('</p>', '\n')
+        line = line.replace('</strong>', '')
+        ret.append(line)
+    ret = "\n".join(ret)
+    ret = ret + "\n"
+    return ret
+
 def export_post(post):
-    POST_DATE  = post["post_date"]
-    POST_MODI  = post["post_modified"]
+    POST_CONT  = post["post_content"]
+    POST_DATE  = date_format_with_tea( post["post_date_gmt"] )
+    POST_MODI  = date_format_with_tea( post["post_modified_gmt"] )
     POST_NAME  = post["post_name"]
     POST_TITLE = post["post_title"]
     POST_TYPE  = post["post_type"]
@@ -95,10 +115,15 @@ def export_post(post):
     fname=POST_NAME + ".md"
     with open(fdir + "/" + fname, "w") as f:
         f.write("---\n")
-        f.write(f"title: {POST_TITLE}\n")
-        f.write(f"date: {POST_DATE}\n")
-        f.write(f"lastmod: {POST_MODI}\n")
+        header = {}
+        header["title"] = POST_TITLE
+        header["date"] = POST_DATE
+        header["lastmod"] = POST_MODI
+        header_yaml = yaml.dump(header)
+        f.write(header_yaml)
         f.write("---\n")
+        content_markdown = wordpress_to_markdown( POST_CONT )
+        f.write(content_markdown)
 
 def export_posts(con):
     query = "SELECT "\
