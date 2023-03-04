@@ -59,6 +59,17 @@ def ancient(st):
         return True
     return False
 
+def generate_filename(title):
+    fn = title
+    fn = fn.lower()
+    fn = fn.replace('å','a')
+    fn = fn.replace('ä','a')
+    fn = fn.replace('ö','o')
+    fn = re.sub('[^a-zA-Z0-9]+', '_', fn)
+    fn = fn.strip('_')
+    fn = fn + ".md"
+    return fn
+
 def process_entry(e):
     published_p  = e['published_parsed']
     if ancient(published_p):
@@ -76,6 +87,7 @@ def process_entry(e):
     #print(f"content:   {content}")
     #print(f"mp3:       {mp3}")
     #print(f"duration:  {duration}")
+    print(generate_filename(title))
     print("---")
     header = {}
     header['title'] = title
