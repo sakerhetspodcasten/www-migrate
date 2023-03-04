@@ -51,11 +51,20 @@ def libsyn_to_markdown(text):
     text = line_break_text( text )
     return text
 
+# Extremly specific check for our puproses.
+# Older than November 2021, we don't care
+def ancient(st):
+    value = st.tm_year * 100 + st.tm_mon
+    if value <= 202111:
+        return True
+    return False
+
 def process_entry(e):
-    title        = e['title']
     published_p  = e['published_parsed']
+    if ancient(published_p):
+        return
+    title        = e['title']
     summary      = e['summary']
-    content      = e['content']
     duration     = e['itunes_duration']
     links        = e['links']
     published_pp  = timestruct_to_isoformat( published_p )
