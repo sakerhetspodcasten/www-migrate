@@ -1,5 +1,6 @@
 import datetime
 import feedparser
+import os
 import re
 import time
 import yaml
@@ -70,6 +71,10 @@ def generate_filename(title):
     fn = fn + ".md"
     return fn
 
+def mkdir(p):
+    if not os.path.exists(p):
+        os.makedirs(p)
+
 def process_entry(e):
     published_p  = e['published_parsed']
     if ancient(published_p):
@@ -80,26 +85,24 @@ def process_entry(e):
     links        = e['links']
     published_pp  = timestruct_to_isoformat( published_p )
     mp3 = gimme_mp3(links)
-    #, 'id', 'guidislink', 'links', 'link', 'image', 'summary', 'summary_detail', 'content', 'itunes_duration', 'itunes_explicit', 'tags', 'subtitle', 'subtitle_detail'])
-    #print(f"title:     {title}")
-    #print(f"pp:        {published_pp}")
-    #print(f"summary:   {summary}")
-    #print(f"content:   {content}")
-    #print(f"mp3:       {mp3}")
-    #print(f"duration:  {duration}")
-    print(generate_filename(title))
-    print("---")
-    header = {}
-    header['title'] = title
-    header['date'] = published_pp
-    header_yaml = yaml.dump(header)
-    print(header_yaml)
-    print("---")
-    print("## Lyssna")
-    print(f"* [mp3]({mp3}), längd: {duration}") 
-    print()
-    print("## Innehåll")
-    print(libsyn_to_markdown(summary))
+
+    fdir = "../www-hugo/content/posts"
+    mkdir(fdir)
+
+    fname = generate_filename(title)
+    with open(fdir + "/" + fname, "w") as f:
+        header = {}
+        header['title'] = title
+        header['date'] = published_pp
+        header_yaml = yaml.dump(header)
+        md_content = libsyn_to_markdown(summary)
+        f.write("---\n")
+        f.write(header_yaml)
+        f.write("---\n")
+        f.write("## Lyssna\n")
+        f.write(f"* [mp3]({mp3}), längd: {duration}\n\n")
+        f.write("## Innehåll\n")
+        f.write(md_content)
 
 def main():
     rss = load_rss()
