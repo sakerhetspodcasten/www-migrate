@@ -1,5 +1,6 @@
 import datetime
 import feedparser
+import re
 import time
 import yaml
 
@@ -23,6 +24,33 @@ def gimme_mp3(links):
             yolo = href
     return yolo
 
+def line_break_text(text):
+    out=""
+    lines = text.split("\n")
+    for line in lines:
+        if " " not in line:
+            out = out + line + "\n"
+            continue
+        if len(line) < 100:
+            out = out + line + "\n"
+            continue
+        try:
+            index = line.index(" ", 80)
+        except ValueError as ve:
+            out = out + line + "\n"
+            continue
+        a = line[:index].strip(' ')
+        b = line[index:].strip(' ')
+        out = out + a + "\n"
+        out = out + line_break_text(b)
+    return out
+
+def libsyn_to_markdown(text):
+    text = re.sub("<[/]*p>", "", text)
+    text = re.sub('<a href="([^"]+)">([^<]+)</a>', r"[\2](\1)", text)
+    text = line_break_text( text )
+    return text
+
 def process_entry(e):
     title        = e['title']
     published_p  = e['published_parsed']
@@ -40,15 +68,17 @@ def process_entry(e):
     #print(f"mp3:       {mp3}")
     #print(f"duration:  {duration}")
     print("---")
-    header={}
+    header = {}
     header['title'] = title
     header['date'] = published_pp
     header_yaml = yaml.dump(header)
+    print(header_yaml)
     print("---")
     print("## Lyssna")
     print(f"* [mp3]({mp3}), längd: {duration}") 
+    print()
     print("## Innehåll")
-    print(summary)
+    print(libsyn_to_markdown(summary))
 
 def main():
     rss = load_rss()
