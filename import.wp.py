@@ -109,6 +109,7 @@ def arr_to_str(arr):
 def wordpress_to_markdown(post):
     post = re.sub('<iframe [^>]*>.*?</iframe>', '', post)
     lines = post\
+            .replace('\t',' ')\
             .replace('\r','\n')\
             .replace('\n</a>',' </a>')\
             .split("\n")
