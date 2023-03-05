@@ -82,31 +82,32 @@ def date_format_with_tea( boring_date ):
     tea = boring_date.replace(' ', 'T')
     return tea
 
-def append_short_lines(out, line):
-    if len(line) < 100:
-        out.append(line)
-        return
-    if " " not in line:
-        out.append(line)
-        return
-    a=None
-    b=None
-    try:
-        index = line.index(" ", 80)
-    except ValueError as ve:
-        out.append(line)
-        return
-    a = line[:index].strip(' ')
-    b = line[index:].strip(' ')
-    out.append(a)
-    append_short_lines(out, b)
-
-def arr_to_str(arr):
-    ret = "\n".join(arr)
-    ret = ret + "\n"
-    return ret
+def line_break_text(text):
+    out=""
+    lines = text.split("\n")
+    for line in lines:
+        if " " not in line:
+            out = out + line + "\n"
+            continue
+        if '[' in line: # Don't mess with link lines
+            out = out + line.rstrip(" ") + "\n"
+            continue
+        if len(line) < 100:
+            out = out + line.rstrip(" ") + "\n"
+            continue
+        try:
+            index = line.index(" ", 80)
+        except ValueError as ve:
+            out = out + line + "\n"
+            continue
+        a = line[:index].strip(' ')
+        b = line[index:].strip(' ')
+        out = out + a + "\n"
+        out = out + line_break_text(b)
+    return out
 
 def wordpress_to_markdown(post):
+    out = ""
     post = re.sub('<iframe [^>]*>.*?</iframe>', '', post)
     lines = post\
             .replace('\t',' ')\
@@ -119,7 +120,6 @@ def wordpress_to_markdown(post):
     reg_li = re.compile('<li[^>]*>')
     reg_link = re.compile('<a href="([^"]+)">([^<]+)</a>')
     reg_span = re.compile('<(h3|script|span|style|p|ul|div)[^>]*>')
-    ret = []
     for line in lines:
         line = line.replace('|','\\|')
         line = reg_junk.sub('', line)
@@ -156,8 +156,9 @@ def wordpress_to_markdown(post):
         line = line.replace('</ul>', '\n')
         line = reg_link.sub(r'[\2](\1) ', line)
         line = line.replace("&nbsp;", " ")
-        append_short_lines(ret, line)
-    return arr_to_str( ret )
+        out = out + line + "\n"
+    ret = line_break_text(out)
+    return ret
 
 def export_post(post):
     POST_CONT  = post["post_content"]
