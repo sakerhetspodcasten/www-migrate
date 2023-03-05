@@ -107,6 +107,7 @@ def arr_to_str(arr):
     return ret
 
 def wordpress_to_markdown(post):
+    post = re.sub('<iframe [^>]*>.*?</iframe>', '', post)
     lines = post\
             .replace('\r','\n')\
             .replace('\n</a>',' </a>')\
@@ -116,7 +117,7 @@ def wordpress_to_markdown(post):
     reg_em = re.compile('<[/]*em>')
     reg_li = re.compile('<li[^>]*>')
     reg_link = re.compile('<a href="([^"]+)">([^<]+)</a>')
-    reg_span = re.compile('<(script|span|style|p|ul|div)[^>]*>')
+    reg_span = re.compile('<(h3|script|span|style|p|ul|div)[^>]*>')
     ret = []
     for line in lines:
         line = line.replace('|','\\|')
@@ -143,6 +144,7 @@ def wordpress_to_markdown(post):
         line = line.replace('<!-- wp:paragraph -->', '')
         line = line.replace('<!-- /wp:paragraph -->','\n')
         line = line.replace('</b>', '\n')
+        line = line.replace('</h3>', '\n')
         line = line.replace('</i>', '\n')
         line = line.replace('</div>', '\n')
         line = line.replace('</li>', '\n')
