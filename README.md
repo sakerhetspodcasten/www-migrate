@@ -28,14 +28,14 @@ Converts Wordpress MySQL to Hugo Yaml/Markdown and writes to:
 * `../www-hugo/content/posts`
 * `../www-hugo/content/pages`
 
-An intermediary sqlite databse is used for ... reasons.
+An intermediary `SQLite` database is used for ... reasons.
 
 ### Files:
 
 * [import.wp.py](import.wp.py) - tool
 * [wp-legacy/posts.mysql.schema](wp-legacy/posts.mysql.schema) - MySQL schema from an Wordpress export
-* [wp-legacy/posts.schema](wp-legacy/posts.schema) - schema modified to be acceptable to sqlite3, our little utility helper database
-* `wp-legacy/posts.sql` - the actual wordpress post insert SQL statements.
+* [wp-legacy/posts.schema](wp-legacy/posts.schema) - schema modified to be acceptable to SQLite3, our little utility helper database
+* `wp-legacy/posts.sql` - the actual Wordpress post insert SQL statements.
 * `wp-legacy/sqllite.db` - our little helper database
 
 ### Usage
@@ -44,13 +44,18 @@ An intermediary sqlite databse is used for ... reasons.
 python3 import.wp.py
 ```
 
-## Miscellanous
+## Miscellaneous
 
 * [.gitignore](.gitignore) - stuff we all just ignore
 * [requirements.txt](requirements.txt) - stuff python3 depends upon
+* [spellcheck.sh](spellcheck.sh) - spellcheck README.md
 
 Install requirements:
 ``` bash
 pip3 install -r requirements.txt
 ```
 
+Spellcheck:
+``` bash
+./spellcheck.sh
+```
