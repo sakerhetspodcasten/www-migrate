@@ -150,7 +150,9 @@ def wordpress_to_markdown(post):
         line = line.replace('</div>', '\n')
         line = line.replace('</li>', '\n')
         line = line.replace('</p>', '\n')
-        line = line.replace('</span>', '\n')
+        # Deal with crud like this:
+        # <a href="URL"><span style=\"font-weight: 400;\">URL</span></a>
+        line = line.replace('</span>', '') # No line break, important!
         line = line.replace('</script>', '')
         line = line.replace('</strong>', '')
         line = line.replace('</ul>', '\n')
