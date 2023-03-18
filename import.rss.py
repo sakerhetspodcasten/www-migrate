@@ -99,8 +99,10 @@ def mkdir(p):
         os.makedirs(p)
 
 def process_entry(e):
+    published    = e['published']
     published_p  = e['published_parsed']
     if ancient(published_p):
+        logger.debug(f"Ignore old: {published}")
         return
     title        = e['title']
     summary      = e['summary']
