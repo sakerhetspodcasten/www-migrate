@@ -7,6 +7,7 @@ import re
 import time
 import yaml
 
+ancient_date=None
 logger=None
 
 def load_rss():
@@ -56,11 +57,26 @@ def libsyn_to_markdown(text):
     text = line_break_text( text )
     return text
 
-# Extremly specific check for our puproses.
-# Older than November 2021, we don't care
+def ancient_setup(ad):
+    global ancient_date
+    if ad is None:
+        # Extremly specific for our puproses.
+        # Older than November 2021, we don't care
+        ancient_date = 202111
+        return
+    if ad == 'None' or ad == 'none':
+        ancient_date = None
+        return
+    if len( ad ) == 6:
+        ancient_date = int( ad )
+        return
+    raise Exception(f"Incomprehensible ancient date: {ad}")
+
 def ancient(st):
+    if ancient_date is None:
+        return False
     value = st.tm_year * 100 + st.tm_mon
-    if value <= 202111:
+    if value <= ancient_date:
         return True
     return False
 
@@ -124,12 +140,17 @@ def main():
             prog='import.rss.py',
             description='Libsyn RSS to Hugo converter (Alpha quality only!)',
             epilog='Hope this help was helpful! :-)')
+    parser.add_argument('--ancient_date',
+            dest='ancient_date',
+            default=None,
+            help='Date in YYYYMM format that is a post too old to migrate. Set to either of [None,none] to migrate all.')
     parser.add_argument('--loglevel',
             dest='loglevel',
             default='WARNING',
             choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'])
     args = parser.parse_args()
     logging_setup(args.loglevel)
+    ancient_setup(args.ancient_date)
     rss = load_rss()
     entries = rss['entries'];
     for entry in entries:
