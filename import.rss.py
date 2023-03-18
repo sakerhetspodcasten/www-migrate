@@ -12,9 +12,6 @@ logger=None
 dir_posts="../www-hugo/content/posts"
 overwrite=None
 
-def load_rss():
-    d = feedparser.parse('./libsyn-legacy/rss')
-    return d
 
 def timestruct_to_isoformat(ts):
     t = time.mktime(ts)
@@ -106,6 +103,12 @@ def generate_filename(title):
     fn = fn + ".md"
     return fn
 
+def process_rss(url):
+    rss = feedparser.parse(url)
+    entries = rss['entries'];
+    for entry in entries:
+        process_entry(entry)
+
 def process_entry(e):
     published    = e['published']
     published_p  = e['published_parsed']
@@ -170,15 +173,16 @@ def main():
             default=False,
             action=argparse.BooleanOptionalAction,
             help='Overwrite existing files, or not.')
+    parser.add_argument('--url',
+            dest='url',
+            required=True,
+            help='URL to lib-syn RSS feed, e.g. https://sakerhetspodcasten.libsyn.com/rss')
     args = parser.parse_args()
     logging_setup(args.loglevel)
     ancient_setup(args.ancient_date)
     dir_setup(args.dir)
     overwrite_setup(args.overwrite)
-    rss = load_rss()
-    entries = rss['entries'];
-    for entry in entries:
-        process_entry(entry)
+    process_rss(args.url)
 
 if __name__ == "__main__":
     main()
