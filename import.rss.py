@@ -12,6 +12,10 @@ import yaml
 #
 
 ancient_date=None
+counter_processed=0
+counter_skip_ancient=0
+counter_skip_file_exists=0
+counter_updated=0
 logger=None
 dir_posts="../www-hugo/content/posts"
 overwrite=None
@@ -128,8 +132,19 @@ def process_rss(url):
     entries = rss['entries'];
     for entry in entries:
         process_entry(entry)
+    logger.info(f"Entries processed: {counter_processed}")
+    logger.info(f"Entries skipped due to ancient date: {counter_skip_ancient}")
+    logger.info(f"Entries skipped due to file exists/no-overwrite: {counter_skip_file_exists}")
+    logger.info(f"Files updated: {counter_updated}")
 
 def process_entry(e):
+    global counter_processed
+    global counter_skip_ancient
+    global counter_skip_file_exists
+    global counter_updated
+
+    counter_processed += 1
+
     published    = e['published']
     published_p  = e['published_parsed']
     title        = e['title']
@@ -138,6 +153,7 @@ def process_entry(e):
     fname_full = dir_posts + "/" + fname
 
     if ancient(published_p):
+        counter_skip_ancient += 1
         logger.debug(f"Skip {fname}: Too old, {published}.")
         return
 
@@ -149,9 +165,11 @@ def process_entry(e):
 
     if not overwrite:
         if os.path.exists(fname_full):
+            counter_skip_file_exists += 1
             logger.debug("Skip {fname}: File allready exists.")
             return
 
+    counter_updated += 1
     logger.info(f"Update: {fname_full}")
     with open(fname_full, "w") as f:
         header = {}
