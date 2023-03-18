@@ -10,6 +10,7 @@ import yaml
 ancient_date=None
 logger=None
 dir_posts="../www-hugo/content/posts"
+overwrite=None
 
 def load_rss():
     d = feedparser.parse('./libsyn-legacy/rss')
@@ -84,8 +85,12 @@ def ancient(st):
 def dir_setup(fdir):
     global dir_posts
     if not os.path.exists(fdir):
-        raise Exception(f"Directory {dir} does not exists.")
-    dir_posts=fdir
+        raise Exception(f"Directory {fdir} does not exists.")
+    dir_posts = fdir
+
+def overwrite_setup(__overwrite):
+    global overwrite
+    overwrite = __overwrite
 
 def generate_filename(title):
     fn = title
@@ -115,8 +120,14 @@ def process_entry(e):
     mp3 = gimme_mp3(links)
 
     fname = generate_filename(title)
-    logger.info(f"Filename: {fname} ({title})")
-    with open(dir_posts + "/" + fname, "w") as f:
+    fname_full = dir_posts + "/" + fname
+    if not overwrite:
+        if os.path.exists(fname_full):
+            logger.debug("Skip {fname}: File allready exists.")
+            return
+
+    logger.info(f"Filename: {fname_full} ({title})")
+    with open(fname_full, "w") as f:
         header = {}
         header['title'] = title
         header['date'] = published_pp
@@ -154,10 +165,16 @@ def main():
             dest='loglevel',
             default='WARNING',
             choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'])
+    parser.add_argument('--overwrite',
+            dest='overwrite',
+            default=False,
+            action=argparse.BooleanOptionalAction,
+            help='Overwrite existing files, or not.')
     args = parser.parse_args()
     logging_setup(args.loglevel)
     ancient_setup(args.ancient_date)
     dir_setup(args.dir)
+    overwrite_setup(args.overwrite)
     rss = load_rss()
     entries = rss['entries'];
     for entry in entries:
