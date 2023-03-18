@@ -144,7 +144,7 @@ def process_entry(e):
     summary      = e['summary']
     duration     = e['itunes_duration']
     links        = e['links']
-    published_pp  = timestruct_to_isoformat( published_p )
+    published_pp = timestruct_to_isoformat( published_p )
     mp3 = gimme_mp3(links)
 
     if not overwrite:
@@ -182,7 +182,7 @@ def main():
             help=f'Hugo posts directory (where to write files to). Default: {dir_posts}')
     parser.add_argument('--loglevel',
             dest='loglevel',
-            default='WARNING',
+            default='INFO',
             choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'])
     parser.add_argument('--overwrite',
             dest='overwrite',
