@@ -11,14 +11,14 @@ import yaml
 # Global variables, arguments
 #
 
-ancient_date=None
-counter_processed=0
-counter_skip_ancient=0
-counter_skip_file_exists=0
-counter_updated=0
-logger=None
-dir_posts=None
-overwrite=None
+ancient_date = None
+counter_processed = 0
+counter_skip_ancient = 0
+counter_skip_file_exists = 0
+counter_updated = 0
+logger = None
+dir_posts = None
+overwrite = None
 
 #
 # Setters for global variables
@@ -51,7 +51,7 @@ def logging_setup(level):
     logger = logging.getLogger(__name__)
     logger.setLevel(level)
     FORMAT = '%(asctime)s %(levelname)-s %(message)s'
-    logging.basicConfig(format=FORMAT)
+    logging.basicConfig(format = FORMAT)
 
 def overwrite_setup(__overwrite):
     global overwrite
@@ -68,7 +68,7 @@ def timestruct_to_isoformat(ts):
     return iso
 
 def gimme_mp3(links):
-    yolo=None
+    yolo = None
     for link in links:
         href = link['href']
         if href.endswith('.mp3'):
@@ -78,7 +78,7 @@ def gimme_mp3(links):
     return yolo
 
 def line_break_text(text):
-    out=""
+    out = ""
     lines = text.split("\n")
     for line in lines:
         if " " not in line:
@@ -187,37 +187,37 @@ def process_entry(e):
 
 def main():
     parser = argparse.ArgumentParser(
-            prog='import.rss.py',
-            description='Libsyn RSS to Hugo converter (Alpha quality only!)',
-            epilog='Hope this help was helpful! :-)')
+            prog = 'import.rss.py',
+            description = 'Libsyn RSS to Hugo converter (Alpha quality only!)',
+            epilog = 'Hope this help was helpful! :-)')
     #
     # Required arguments
     #
     parser.add_argument('--dir',
-            dest='dir',
-            default=dir_posts,
-            required=True,
-            help=f'Hugo posts directory (where to write files to).')
+            dest = 'dir',
+            default = dir_posts,
+            required = True,
+            help = f'Hugo posts directory (where to write files to).')
     parser.add_argument('--url',
-            dest='url',
-            required=True,
-            help='URL to lib-syn RSS feed, e.g. https://sakerhetspodcasten.libsyn.com/rss')
+            dest = 'url',
+            required = True,
+            help = 'URL to lib-syn RSS feed, e.g. https://sakerhetspodcasten.libsyn.com/rss')
     #
     # Optional arguments
     #
     parser.add_argument('--ancient_date',
-            dest='ancient_date',
-            default=None,
-            help='Date in YYYYMM format that is a post too old to migrate. Set to either of [None,none] to migrate all.')
+            dest = 'ancient_date',
+            default = None,
+            help = 'Date in YYYYMM format that is a post too old to migrate. Set to either of [None,none] to migrate all.')
     parser.add_argument('--loglevel',
-            dest='loglevel',
-            default='INFO',
-            choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'])
+            dest = 'loglevel',
+            default = 'INFO',
+            choices = ['DEBUG','INFO','WARNING','ERROR','CRITICAL'])
     parser.add_argument('--overwrite',
-            dest='overwrite',
-            default=False,
-            action=argparse.BooleanOptionalAction,
-            help='Overwrite existing files, or not.')
+            dest = 'overwrite',
+            default = False,
+            action = argparse.BooleanOptionalAction,
+            help = 'Overwrite existing files, or not.')
     args = parser.parse_args()
     #
     # Set and validate globals
