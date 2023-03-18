@@ -1,9 +1,7 @@
-# WWW Migration tools
+# Web migration tools
 
 This is very alpha stuff that are for personal project only.
-
 Quick and dirty scripting.
-
 Tools do not support malicious input =)
 
 ## Libsyn migration tool
