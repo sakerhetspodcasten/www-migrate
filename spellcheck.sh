@@ -15,4 +15,5 @@ then
 fi
 
 spellcheck README.md
+spellcheck rss/README.md
 spellcheck wordpress/README.md
