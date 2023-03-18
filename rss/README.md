@@ -1,7 +1,6 @@
 # Libsyn migration tool
 
-Converts Libsyn RSS to Hugo Yaml/Markdown and writes to:
-* `../www-hugo/content/posts`
+Converts Libsyn RSS to Hugo Yaml/Markdown content/posts.
 
 ## Files:
 
