@@ -5,7 +5,6 @@ Converts Libsyn RSS to Hugo Yaml/Markdown content/posts.
 ## Files:
 
 * [import.rss.py](import.rss.py) - tool
-* `libsyn-legacy/rss` - file it depends on  
 
 ## Usage
 
@@ -17,7 +16,7 @@ python3 import.rss.py --help
 # Running the tool:
 mkdir testdir
 python3 import.rss.py --dir testdir --url https://sakerhetspodcasten.libsyn.com/rss
-```  
+```
 
 Full usage:
 ```
