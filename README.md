@@ -21,7 +21,7 @@ Converts Libsyn RSS to Hugo Yaml/Markdown and writes to:
 Example:
 ``` bash
 mkdir test
-python3 import.rss.py --loglevel INFO --dir test --overwrite --url https://sakerhetspodcasten.libsyn.com/rss
+python3 import.rss.py --dir test --url https://sakerhetspodcasten.libsyn.com/rss
 ```  
 
 Help
