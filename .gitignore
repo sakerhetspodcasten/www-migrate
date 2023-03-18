@@ -1,4 +1,4 @@
 .*.sw?
 libsyn-legacy/rss
-wp-legacy/*.db
-wp-legacy/*.sql
+wordpress/wp-legacy/*.db
+wordpress/wp-legacy/*.sql

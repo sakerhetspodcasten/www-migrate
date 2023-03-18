@@ -172,9 +172,9 @@ def export_post(post):
     fdir=None
     fname=None
     if POST_TYPE == "post":
-        fdir = "../www-hugo/content/posts"
+        fdir = "../../www-hugo/content/posts"
     elif POST_TYPE == "page":
-        fdir = "../www-hugo/content/pages"
+        fdir = "../../www-hugo/content/pages"
     else:
         print(f"IGNORED: Unknown type {POST_TYPE}")
         return
