@@ -9,6 +9,7 @@ import yaml
 
 ancient_date=None
 logger=None
+dir_posts="../www-hugo/content/posts"
 
 def load_rss():
     d = feedparser.parse('./libsyn-legacy/rss')
@@ -80,6 +81,12 @@ def ancient(st):
         return True
     return False
 
+def dir_setup(fdir):
+    global dir_posts
+    if not os.path.exists(fdir):
+        raise Exception(f"Directory {dir} does not exists.")
+    dir_posts=fdir
+
 def generate_filename(title):
     fn = title
     fn = fn.lower()
@@ -94,10 +101,6 @@ def generate_filename(title):
     fn = fn + ".md"
     return fn
 
-def mkdir(p):
-    if not os.path.exists(p):
-        os.makedirs(p)
-
 def process_entry(e):
     published    = e['published']
     published_p  = e['published_parsed']
@@ -111,12 +114,9 @@ def process_entry(e):
     published_pp  = timestruct_to_isoformat( published_p )
     mp3 = gimme_mp3(links)
 
-    fdir = "../www-hugo/content/posts"
-    mkdir(fdir)
-
     fname = generate_filename(title)
     logger.info(f"Filename: {fname} ({title})")
-    with open(fdir + "/" + fname, "w") as f:
+    with open(dir_posts + "/" + fname, "w") as f:
         header = {}
         header['title'] = title
         header['date'] = published_pp
@@ -146,6 +146,10 @@ def main():
             dest='ancient_date',
             default=None,
             help='Date in YYYYMM format that is a post too old to migrate. Set to either of [None,none] to migrate all.')
+    parser.add_argument('--dir',
+            dest='dir',
+            default=dir_posts,
+            help=f'Hugo posts directory (where to write files to). Default: {dir_posts}')
     parser.add_argument('--loglevel',
             dest='loglevel',
             default='WARNING',
@@ -153,6 +157,7 @@ def main():
     args = parser.parse_args()
     logging_setup(args.loglevel)
     ancient_setup(args.ancient_date)
+    dir_setup(args.dir)
     rss = load_rss()
     entries = rss['entries'];
     for entry in entries:
