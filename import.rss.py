@@ -17,7 +17,7 @@ counter_skip_ancient=0
 counter_skip_file_exists=0
 counter_updated=0
 logger=None
-dir_posts="../www-hugo/content/posts"
+dir_posts=None
 overwrite=None
 
 #
@@ -190,14 +190,25 @@ def main():
             prog='import.rss.py',
             description='Libsyn RSS to Hugo converter (Alpha quality only!)',
             epilog='Hope this help was helpful! :-)')
+    #
+    # Required arguments
+    #
+    parser.add_argument('--dir',
+            dest='dir',
+            default=dir_posts,
+            required=True,
+            help=f'Hugo posts directory (where to write files to).')
+    parser.add_argument('--url',
+            dest='url',
+            required=True,
+            help='URL to lib-syn RSS feed, e.g. https://sakerhetspodcasten.libsyn.com/rss')
+    #
+    # Optional arguments
+    #
     parser.add_argument('--ancient_date',
             dest='ancient_date',
             default=None,
             help='Date in YYYYMM format that is a post too old to migrate. Set to either of [None,none] to migrate all.')
-    parser.add_argument('--dir',
-            dest='dir',
-            default=dir_posts,
-            help=f'Hugo posts directory (where to write files to). Default: {dir_posts}')
     parser.add_argument('--loglevel',
             dest='loglevel',
             default='INFO',
@@ -207,15 +218,17 @@ def main():
             default=False,
             action=argparse.BooleanOptionalAction,
             help='Overwrite existing files, or not.')
-    parser.add_argument('--url',
-            dest='url',
-            required=True,
-            help='URL to lib-syn RSS feed, e.g. https://sakerhetspodcasten.libsyn.com/rss')
     args = parser.parse_args()
+    #
+    # Set and validate globals
+    #
     logging_setup(args.loglevel)
     ancient_setup(args.ancient_date)
     dir_setup(args.dir)
     overwrite_setup(args.overwrite)
+    #
+    # Actually run the program
+    #
     process_rss(args.url)
 
 if __name__ == "__main__":
