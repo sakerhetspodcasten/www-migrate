@@ -7,11 +7,55 @@ import re
 import time
 import yaml
 
+#
+# Global variables, arguments
+#
+
 ancient_date=None
 logger=None
 dir_posts="../www-hugo/content/posts"
 overwrite=None
 
+#
+# Setters for global variables
+# May also include some basic input validation
+#
+
+def ancient_setup(ad):
+    global ancient_date
+    if ad is None:
+        # Extremly specific for our puproses.
+        # Older than November 2021, we don't care
+        ancient_date = 202111
+        return
+    if ad == 'None' or ad == 'none':
+        ancient_date = None
+        return
+    if len( ad ) == 6:
+        ancient_date = int( ad )
+        return
+    raise Exception(f"Incomprehensible ancient date: {ad}")
+
+def dir_setup(fdir):
+    global dir_posts
+    if not os.path.exists(fdir):
+        raise Exception(f"Directory {fdir} does not exists.")
+    dir_posts = fdir
+
+def logging_setup(level):
+    global logger
+    logger = logging.getLogger(__name__)
+    logger.setLevel(level)
+    FORMAT = '%(asctime)s %(levelname)-s %(message)s'
+    logging.basicConfig(format=FORMAT)
+
+def overwrite_setup(__overwrite):
+    global overwrite
+    overwrite = __overwrite
+
+#
+# Utility functions
+#
 
 def timestruct_to_isoformat(ts):
     t = time.mktime(ts)
@@ -56,21 +100,6 @@ def libsyn_to_markdown(text):
     text = line_break_text( text )
     return text
 
-def ancient_setup(ad):
-    global ancient_date
-    if ad is None:
-        # Extremly specific for our puproses.
-        # Older than November 2021, we don't care
-        ancient_date = 202111
-        return
-    if ad == 'None' or ad == 'none':
-        ancient_date = None
-        return
-    if len( ad ) == 6:
-        ancient_date = int( ad )
-        return
-    raise Exception(f"Incomprehensible ancient date: {ad}")
-
 def ancient(st):
     if ancient_date is None:
         return False
@@ -78,16 +107,6 @@ def ancient(st):
     if value <= ancient_date:
         return True
     return False
-
-def dir_setup(fdir):
-    global dir_posts
-    if not os.path.exists(fdir):
-        raise Exception(f"Directory {fdir} does not exists.")
-    dir_posts = fdir
-
-def overwrite_setup(__overwrite):
-    global overwrite
-    overwrite = __overwrite
 
 def generate_filename(title):
     fn = title
@@ -104,6 +123,7 @@ def generate_filename(title):
     return fn
 
 def process_rss(url):
+    logger.info(f"Request feed from {url}")
     rss = feedparser.parse(url)
     entries = rss['entries'];
     for entry in entries:
@@ -112,24 +132,27 @@ def process_rss(url):
 def process_entry(e):
     published    = e['published']
     published_p  = e['published_parsed']
-    if ancient(published_p):
-        logger.debug(f"Ignore old: {published}")
-        return
     title        = e['title']
+
+    fname = generate_filename(title)
+    fname_full = dir_posts + "/" + fname
+
+    if ancient(published_p):
+        logger.debug(f"Skip {fname}: Too old, {published}.")
+        return
+
     summary      = e['summary']
     duration     = e['itunes_duration']
     links        = e['links']
     published_pp  = timestruct_to_isoformat( published_p )
     mp3 = gimme_mp3(links)
 
-    fname = generate_filename(title)
-    fname_full = dir_posts + "/" + fname
     if not overwrite:
         if os.path.exists(fname_full):
             logger.debug("Skip {fname}: File allready exists.")
             return
 
-    logger.info(f"Filename: {fname_full} ({title})")
+    logger.info(f"Update: {fname_full}")
     with open(fname_full, "w") as f:
         header = {}
         header['title'] = title
@@ -143,13 +166,6 @@ def process_entry(e):
         f.write(f"* [mp3]({mp3}), längd: {duration}\n\n")
         f.write("## Innehåll\n")
         f.write(md_content)
-
-def logging_setup(level):
-    global logger
-    logger = logging.getLogger(__name__)
-    logger.setLevel(level)
-    FORMAT = '%(asctime)s %(levelname)-s %(message)s'
-    logging.basicConfig(format=FORMAT)
 
 def main():
     parser = argparse.ArgumentParser(
