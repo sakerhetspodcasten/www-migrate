@@ -66,6 +66,9 @@ def generate_filename(title):
     fn = fn.replace('å','a')
     fn = fn.replace('ä','a')
     fn = fn.replace('ö','o')
+    fn = fn.replace('Å','A')
+    fn = fn.replace('Ä','A')
+    fn = fn.replace('Ö','O')
     fn = re.sub('[^a-zA-Z0-9]+', '_', fn)
     fn = fn.strip('_')
     fn = fn + ".md"
