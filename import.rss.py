@@ -1,9 +1,13 @@
+import argparse
 import datetime
 import feedparser
+import logging
 import os
 import re
 import time
 import yaml
+
+logger=None
 
 def load_rss():
     d = feedparser.parse('./libsyn-legacy/rss')
@@ -93,6 +97,7 @@ def process_entry(e):
     mkdir(fdir)
 
     fname = generate_filename(title)
+    logger.info(f"Filename: {fname} ({title})")
     with open(fdir + "/" + fname, "w") as f:
         header = {}
         header['title'] = title
@@ -107,7 +112,24 @@ def process_entry(e):
         f.write("## Innehåll\n")
         f.write(md_content)
 
+def logging_setup(level):
+    global logger
+    logger = logging.getLogger(__name__)
+    logger.setLevel(level)
+    FORMAT = '%(asctime)s %(levelname)-s %(message)s'
+    logging.basicConfig(format=FORMAT)
+
 def main():
+    parser = argparse.ArgumentParser(
+            prog='import.rss.py',
+            description='Libsyn RSS to Hugo converter (Alpha quality only!)',
+            epilog='Hope this help was helpful! :-)')
+    parser.add_argument('--loglevel',
+            dest='loglevel',
+            default='WARNING',
+            choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'])
+    args = parser.parse_args()
+    logging_setup(args.loglevel)
     rss = load_rss()
     entries = rss['entries'];
     for entry in entries:
