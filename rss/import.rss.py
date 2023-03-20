@@ -99,8 +99,19 @@ def line_break_text(text):
     return out
 
 def libsyn_to_markdown(text):
-    text = re.sub("<[/]*p>", "", text)
+    #
+    # Just remove all garbage
+    #
+    text = re.sub('<[/]*(h1|h2|h3|script|span|style|p|ul|div)[^>]*>', "", text)
+    text = text.replace('</li>','')
+    #
+    # More intelligent replaces goes here
+    #
     text = re.sub('<a href="([^"]+)">([^<]+)</a>', r"[\2](\1)", text)
+    text = text.replace('<li>','\n* ')
+    #
+    # Make markdown lines nice and short
+    #
     text = line_break_text( text )
     return text
 
