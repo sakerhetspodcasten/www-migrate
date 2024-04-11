@@ -1,4 +1,6 @@
 .*.sw?
+.venv
+.venv/**
 rss/libsyn-legacy/rss
 rss/test
 wordpress/wp-legacy/*.db
