@@ -14,6 +14,12 @@ def main():
             default = None,
             help = f'which file to read')
 
+    parser.add_argument('-m', '--markdown-header',
+            dest = 'markdown_header',
+            default = "###",
+            help = f'markdown header preamble, default ###')
+
+
     args = parser.parse_args()
 
     file_in = sys.stdin
@@ -31,7 +37,7 @@ def main():
             #print(f"t1:{t1} t2:{t2}")
             #print(f"m1:{m1} m2:{m2}")
             if m1 and m2:
-                print(f"### {t1} {t2}")
+                print(f"{args.markdown_header} {t1} {t2}")
                 buf.clear()
             else:
                 t = buf.pop(0)
