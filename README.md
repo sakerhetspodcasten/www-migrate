@@ -13,6 +13,8 @@ Tools do not support malicious input =)
   * [wordpress/README.md](wordpress/README.md)
   * Extremely alpha quality.
   * Not used by us any more, will never improve, abandon-ware.
+* SRT to Markdown tool
+  * [srt2md/README.md](srt2md/README.md)
 
 ## Miscellaneous
 
