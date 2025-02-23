@@ -38,13 +38,7 @@ Google SRT transcribe files to Markdown converter.
 ## Miscellaneous
 
 * [.gitignore](.gitignore) - stuff we all just ignore
-* [requirements.txt](requirements.txt) - stuff python3 depends upon
 * [spellcheck.sh](spellcheck.sh) - spellcheck README.md
-
-Install requirements:
-``` bash
-pip3 install -r requirements.txt
-```
 
 Spellcheck:
 ``` bash

@@ -5,6 +5,8 @@ Converts Libsyn RSS to Hugo Yaml/Markdown content/posts.
 ## Files:
 
 * [import.rss.py](import.rss.py) - tool
+* [requirements.in](requirements.in) - python dependencies
+* [requirements.txt](requirements.txt) - version freeze
 
 ## Usage
 
@@ -79,3 +81,12 @@ python3 import.rss.py --no-overwrite --dir test --url https://sakerhetspodcasten
 # 2023-03-18 21:53:41,568 INFO Entries skipped due to file exists/no-overwrite: 21
 # 2023-03-18 21:53:41,568 INFO Files updated: 0
 ```
+
+## Dependencies
+
+Install requirements:
+``` bash
+pip3 install -r requirements.txt
+```
+
+
