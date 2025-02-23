@@ -2,7 +2,7 @@ import argparse
 import re
 import sys
 
-def srt2md(header, file_in):
+def srt2md(header, file_in, file_out):
     buf = []
     for line in file_in:
         buf.append(line.rstrip())
@@ -12,14 +12,14 @@ def srt2md(header, file_in):
             m0 = re.search("^[0-9]+$", t0)
             m1 = re.search("^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]+ --> [0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]+$", t1)
             if m0 and m1:
-                print(f"{header} {t0} {t1}")
+                print(f"{header} {t0} {t1}", file=file_out)
                 buf.clear()
             else:
-                print(t0)
+                print(t0, file=file_out)
                 del buf[0]
 
     for line in buf:
-        print(line)
+        print(line, file=file_out)
 
 def main():
     parser = argparse.ArgumentParser(
@@ -30,7 +30,18 @@ def main():
     parser.add_argument('-i', '--in',
             dest = 'filename_in',
             default = None,
-            help = f'which file to read')
+            help = f'File to read, default is <stdin>')
+
+    parser.add_argument('-o', '--out',
+            dest = 'filename_out',
+            default = None,
+            help = f'File to write, default is <stdout>')
+
+    parser.add_argument('-O', '--output-mode',
+            dest = 'output_mode',
+            default = 'a',
+            choices=['a', 'w', 'x'],
+            help = f'File output mode; a: append (default), w: truncating write, x: eXclusively create.')
 
     parser.add_argument('-m', '--markdown-header',
             dest = 'markdown_header',
@@ -47,7 +58,19 @@ def main():
         if sys.stdin.isatty():
             print("Warning: converting <stdin> TTY to Markdown", file=sys.stderr)
 
-    srt2md(args.markdown_header, file_in)
+    file_out = None
+    if args.filename_out is not None:
+        file_out = open(args.filename_out, args.output_mode)
+    else:
+        file_out = sys.stdout
+
+    #
+    # Call the actual useful logic
+    #
+    srt2md(args.markdown_header, file_in, file_out)
+
+    if args.filename_out is not None:
+        file_out.close()
 
     if args.filename_in is not None:
         file_in.close()
