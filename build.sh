@@ -3,7 +3,7 @@
 set -x
 set -e
 
-TAG="$(git describe --dirty)"
+TAG="$(git describe --long --dirty)"
 IMAGE=localhost/www-migrate
 IMAGE_TAG="$IMAGE:$TAG"
 OUTDIR="$PWD/out"

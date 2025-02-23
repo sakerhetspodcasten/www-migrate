@@ -17,4 +17,6 @@ RUN cd /build/wordpress && \
   bash -c "source venv.sh" && \
   .venv/bin/python3 import.wp.py -h
 
+COPY srt2md/srt2md.py /build/srt2md/
 
+RUN python3 /build/srt2md/srt2md.py -h
