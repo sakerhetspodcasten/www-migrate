@@ -39,9 +39,13 @@ def main():
 
     args = parser.parse_args()
 
-    file_in = sys.stdin
+    file_in = None
     if args.filename_in is not None:
         file_in = open(args.filename_in)
+    else:
+        file_in = sys.stdin
+        if sys.stdin.isatty():
+            print("Warning: converting <stdin> TTY to Markdown", file=sys.stderr)
 
     srt2md(args.markdown_header, file_in)
 
