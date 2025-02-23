@@ -35,6 +35,11 @@ Google SRT transcribe files to Markdown converter.
 
 * [srt2md/README.md](srt2md/README.md)
 
+## Build and update
+
+* [Dockerfile](Dockerfile) - a reproducible build for regenerating virtual environments.
+* [build.sh](build.sh) - runs `podman build` to regenerate `requirements.txt` files using `podman`.
+
 ## Miscellaneous
 
 * [.gitignore](.gitignore) - stuff we all just ignore
