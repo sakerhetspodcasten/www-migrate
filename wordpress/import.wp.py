@@ -1,6 +1,7 @@
 import os
 import re
 import sqlite3
+import sys
 import yaml
 
 def get_connection():
@@ -221,6 +222,9 @@ def export_posts(con):
         export_post(a)
 
 def main():
+    if not os.path.isfile('wp-legacy/posts.sql'):
+        print("Warning: No posts to import, terminating!", file=sys.stderr)
+        return
     con = get_connection()
     load_schema(con)
     truncate_posts(con)
