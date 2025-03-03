@@ -6,5 +6,6 @@ out
 out/**
 rss/libsyn-legacy/rss
 rss/test
+tagger/test/**
 wordpress/wp-legacy/*.db
 wordpress/wp-legacy/*.sql
