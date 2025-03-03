@@ -14,6 +14,7 @@ then
 	exit 1
 fi
 
-spellcheck README.md
-spellcheck rss/README.md
-spellcheck wordpress/README.md
+while read -u3 mdfile
+do
+	spellcheck "$mdfile"
+done 3< <( find . -name "*.md" -not -path "./rss/test/*" -not -path "./tagger/test/*" )
