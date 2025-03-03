@@ -22,7 +22,6 @@ def logging_setup(level):
     FORMAT = '%(asctime)s %(levelname)-s %(message)s'
     logging.basicConfig(format = FORMAT)
 
-
 def parse(file):
     header=[]
     content=[]
@@ -94,6 +93,10 @@ def main():
             dest = 'tag',
             required = True,
             help = 'tag to add to markdown files')
+    parser.add_argument('--dir', '-d',
+            dest = 'dir',
+            default = None,
+            help = 'directory prefix to append to file names')
     parser.add_argument('file',
             nargs='+',
             help = 'files to process')
@@ -106,6 +109,8 @@ def main():
     logging_setup(args.loglevel)
 
     for file in args.file:
+        if args.dir:
+            file=os.path.join(args.dir, file)
         process(file, args.tag)
 
 if __name__ == "__main__":
