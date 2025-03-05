@@ -1,6 +1,6 @@
-## Tag script for Markdown / GLFM / etc.
+# Scripts for tag manipulation in Markdown / GLFM / etc.
 
-`tagmd.py` adds `yaml` tags to Markdown files, e.g.:
+Scripts deals with `tags` list in `yaml`/`Markdown` files, e.g.:
 
 ``` plain
 ---
@@ -16,12 +16,16 @@ title: "alice.md"
 Content....
 ```
 
+Tools:
+* [tagmd](#tagmd) _command for adding tags to Markdown files_
+* [taglist](#taglist) _command for finding files matching tags etc_
+
+## tagmd
+
 Add new tags using e.g.:
 * `python3 tagmd.py -t foo alice.md` 
 * `python3 tagmd.py -t bar alice.md`
-
-
-## Usage
+* `python3 tagmd.py -t foo,bar,baz alice.md` - add three tags in one go!
 
 Request usage help:
 
@@ -41,9 +45,11 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  --tag TAG, -t TAG     tag to add to markdown files
+  --tag TAG, -t TAG     tag to add to markdown files. Sperate multiple tags with comma.
   --dir DIR, -d DIR     directory prefix to append to file names
   --loglevel {DEBUG,INFO,WARNING,ERROR,CRITICAL}
+
+Hope this help was helpful! :-)
 ```
  
 **Basic example:**
@@ -72,3 +78,40 @@ Add tag `foo` to articles in directory `../foo` from list in file `cat foo-list.
 ``` bash
 cat foo-list.txt | xargs python3 tagmd.py -t foo --dir ../foo
 ```
+
+## taglist
+
+Request usage help:
+
+``` bash
+python3 taglist.py -h
+```
+
+``` plain
+usage: taglist.py [-h] [--tag TAG] [--tagcount TAGCOUNT] [--loglevel {DEBUG,INFO,WARNING,ERROR,CRITICAL}] file [file ...]
+
+list files with tags
+
+positional arguments:
+  file                  files or directories to process
+
+options:
+  -h, --help            show this help message and exit
+  --tag TAG, -t TAG     file files with tag
+  --tagcount TAGCOUNT, -c TAGCOUNT
+                        file files with tag
+  --loglevel {DEBUG,INFO,WARNING,ERROR,CRITICAL}
+
+Hope this help was helpful! :-)
+```
+
+Examples:
+* `python3 taglist.py file.md`
+* `python3 taglist.py directory`
+* `python3 taglist.py -t foo directory` lists only markdown files tagged with `foo`.
+* `python3 taglist.py -c 2 directory` lists only markdown files with exactly `2` tags.
+* `python3 taglist.py -t foo -c 2 directory` require both tag and tag count to match.
+* `python3 taglist.py -c '<2' directory` _less than..._
+* `python3 taglist.py -c '<=2' directory` _less or equal to..._
+* `python3 taglist.py -c '>2' directory` _more than..._
+* `python3 taglist.py -c '>=2' directory` _more than or euql to..._
