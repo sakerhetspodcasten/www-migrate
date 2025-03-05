@@ -116,6 +116,10 @@ def process(file):
         logger.warning(f'File does not exists: {file}')
         return
 
+    if os.path.isfile(file):
+        process_file(file)
+        return
+
     for (dirpath, dirnames, filenames) in os.walk(file):
         for filename in filenames:
             if not good_filename(filename):
