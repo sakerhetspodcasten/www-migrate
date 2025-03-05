@@ -58,7 +58,7 @@ def emit(file, header, content):
     with open(file, 'w') as f:
         f.write('---\n')
         f.write( yaml.dump(header) )
-        f.write('\n---\n')
+        f.write('---\n')
         for line in content:
             f.write( line )
             f.write( '\n' )
