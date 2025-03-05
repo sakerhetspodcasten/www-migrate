@@ -79,7 +79,8 @@ def process(file, tag):
         return
 
     logger.debug(f"before: {header}")
-    add_tag(header, tag)
+    for t in tag.split(","):
+        add_tag(header, t)
     logger.debug(f"after: {header}")
 
     emit(file, header, content)
