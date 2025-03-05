@@ -3,10 +3,8 @@
 set -x
 set -e
 
-
 if [[ ! -d .venv ]]
 then
-	# sudo apt install python3.10-venv
 	python3 -m venv .venv
 fi
 
