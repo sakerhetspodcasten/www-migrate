@@ -93,7 +93,7 @@ def main():
     parser.add_argument('--tag', '-t',
             dest = 'tag',
             required = True,
-            help = 'tag to add to markdown files')
+            help = 'tag to add to markdown files. Sperate multiple tags with comma.')
     parser.add_argument('--dir', '-d',
             dest = 'dir',
             default = None,
