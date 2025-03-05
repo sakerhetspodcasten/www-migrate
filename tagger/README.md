@@ -114,4 +114,4 @@ Examples:
 * `python3 taglist.py -c '<2' directory` _less than..._
 * `python3 taglist.py -c '<=2' directory` _less or equal to..._
 * `python3 taglist.py -c '>2' directory` _more than..._
-* `python3 taglist.py -c '>=2' directory` _more than or euql to..._
+* `python3 taglist.py -c '>=2' directory` _more than or equal to..._
