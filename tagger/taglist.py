@@ -62,8 +62,15 @@ def good_count(count):
 def process_file(file):
     logger.debug(f"Process {file}")
 
-    header = parse(file)
+    header=None
+    try:
+        header=parse(file)
+    except yaml.parser.ParserError:
+        logger.error(f'Error safe yaml parser failed on: {file}')
+        return
 
+    if header is None:
+        return
     if len(header) == 0:
         logger.warning(f'Skip {file} due to empty header')
         return
