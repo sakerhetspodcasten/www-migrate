@@ -6,6 +6,7 @@ import yaml
 # Global variables
 logger = None
 search_tag = None
+search_tagcount = None
 
 def logging_setup(level):
     global logger
@@ -37,6 +38,27 @@ def parse(file):
     yheader=yaml.safe_load(strheader)
     return yheader
 
+def good_count(count):
+    sc = search_tagcount
+
+    if sc is None:
+        return True
+    if sc.isdigit():
+        return int(sc) == count
+    if sc.startswith('<='):
+        sc = int(sc[2:])
+        return count <= int(sc)
+    if sc.startswith('<'):
+        sc = int(sc[1:])
+        return count < int(sc)
+    if sc.startswith('>='):
+        sc = int(sc[2:])
+        return count >= int(sc)
+    if sc.startswith('>'):
+        sc = int(sc[1:])
+        return count > int(sc)
+    raise Exception(f'Bad argument: {sc}')
+
 def process_file(file):
     logger.debug(f"Process {file}")
 
@@ -58,6 +80,8 @@ def process_file(file):
         if not found:
             return
 
+    if not good_count(len(tags)):
+        return
 
     print(f"{file}: {tags}")
 
@@ -95,12 +119,16 @@ def process(file):
 
 def main():
     global search_tag
+    global search_tagcount
     parser = argparse.ArgumentParser(
             prog = 'taglist.py',
             description = 'list files with tags',
             epilog = 'Hope this help was helpful! :-)')
     parser.add_argument('--tag', '-t',
             dest = 'tag',
+            help = 'file files with tag')
+    parser.add_argument('--tagcount', '-c',
+            dest = 'tagcount',
             help = 'file files with tag')
     parser.add_argument('file',
             nargs='+',
@@ -114,6 +142,7 @@ def main():
     logging_setup(args.loglevel)
 
     search_tag = args.tag
+    search_tagcount = args.tagcount
     for file in args.file:
         process(file)
 
