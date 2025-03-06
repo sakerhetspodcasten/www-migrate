@@ -1,21 +1,41 @@
 #!/bin/sh
 
-set -x
 set -e
+set -x
 
-TAG="$(git describe --long --dirty)"
+REQUIREMENT_TXT=keep
+RELEASE_SUFFIX=""
+if [ "$1" = "release" ]
+then
+	REQUIREMENT_TXT=refresh
+	RELEASE_SUFFIX="-release"
+fi
+
+TAG="$(git describe --long --dirty)${RELEASE_SUFFIX}"
 IMAGE=localhost/www-migrate
 IMAGE_TAG="$IMAGE:$TAG"
 OUTDIR="$PWD/out"
 
-podman build . -t "$IMAGE_TAG"
+podman build \
+	--build-arg REQUIREMENT_TXT="$REQUIREMENT_TXT" \
+	-t "$IMAGE_TAG" \
+	.
 
-mkdir -p -- "$OUTDIR"
+if [ "$REQUIREMENT_TXT" = "refresh" ]
+then
+	mkdir -p -- "$OUTDIR"
 
-podman run --rm -v "$OUTDIR":/out:rw "$IMAGE_TAG" cp /build/rss/requirements.txt /out/rss-requirements.txt
-podman run --rm -v "$OUTDIR":/out:rw "$IMAGE_TAG" cp /build/tagger/requirements.txt /out/tagger-requirements.txt
-podman run --rm -v "$OUTDIR":/out:rw "$IMAGE_TAG" cp /build/wordpress/requirements.txt /out/wordpress-requirements.txt
+	podman run --rm -v "$OUTDIR":/out:rw "$IMAGE_TAG" \
+		cp /build/rss/requirements.txt \
+		/out/rss-requirements.txt
+	podman run --rm -v "$OUTDIR":/out:rw "$IMAGE_TAG" \
+		cp /build/tagger/requirements.txt \
+		/out/tagger-requirements.txt
+	podman run --rm -v "$OUTDIR":/out:rw "$IMAGE_TAG" \
+		cp /build/wordpress/requirements.txt \
+		/out/wordpress-requirements.txt
 
-cp -- "$OUTDIR/rss-requirements.txt" rss/requirements.txt
-cp -- "$OUTDIR/tagger-requirements.txt" tagger/requirements.txt
-cp -- "$OUTDIR/wordpress-requirements.txt" wordpress/requirements.txt
+	cp -- "$OUTDIR/rss-requirements.txt" rss/requirements.txt
+	cp -- "$OUTDIR/tagger-requirements.txt" tagger/requirements.txt
+	cp -- "$OUTDIR/wordpress-requirements.txt" wordpress/requirements.txt
+fi

@@ -13,7 +13,7 @@ then
     exit 1
 fi
 
-./build.sh
+./build.sh release
 
 porcelain="$(git status --porcelain=v2)"
 
