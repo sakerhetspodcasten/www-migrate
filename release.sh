@@ -2,7 +2,7 @@
 
 set -x
 set -e
-version="0.0.2"
+version="0.0.3"
 tag=$(git tag -l -- "v$version")
 
 git fetch --tags
