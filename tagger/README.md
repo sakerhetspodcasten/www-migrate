@@ -1,5 +1,9 @@
 # Scripts for tag manipulation in Markdown / GLFM / etc.
 
+Tools:
+* [tagmd](#tagmd) _command for adding tags to Markdown files_
+* [taglist](#taglist) _command for finding files matching tags etc_
+
 Scripts deals with `tags` list in `yaml`/`Markdown` files, e.g.:
 
 ``` plain
@@ -9,16 +13,11 @@ lastmod: '2018-09-26T08:21:26'
 tags:
 - foo
 title: "alice.md"
-
 ---
 ## Markdown
 
 Content....
 ```
-
-Tools:
-* [tagmd](#tagmd) _command for adding tags to Markdown files_
-* [taglist](#taglist) _command for finding files matching tags etc_
 
 ## tagmd
 
