@@ -3,6 +3,7 @@
 import argparse
 from bs4 import BeautifulSoup
 import logging
+import re
 import requests
 
 def logging_setup(level):
@@ -39,24 +40,58 @@ def get_author(url, soup):
     return None
 
 
+def clean_whitespaces(text):
+    text = text.strip()
+    return ' '.join( text.split() )
+
+
+do_not_visit_suffixes = [ '.mp3', '.pdf' ]
+
 def process(url):
     if not url.startswith('https://'):
         return url
     url = unshorten(url)
+
+    default = f'* {url}'
+    for suffix in do_not_visit_suffixes:
+        if url.endswith(suffix):
+            return default
+
     r = None
     try:
         r = requests.get(url)
     except Exception as e:
         logger.debug(f'{url} {e}')
         ex = type(e).__name__
-        return f'* {url} `{ex}`'
+        return f'{default} `{ex}`'
 
     if r.status_code != 200:
-       return f'* {url} `{r.status_code}`'
+       return f'{default} `{r.status_code}`'
+
+    content_type = None
+    if 'content-type' in r.headers:
+        content_type = r.headers['content-type']
+    elif 'Content-Type' in r.headers:
+        content_type = r.headers['Content-Type']
+    else:
+        logger.debug(f'No content type: {url}')
+        return default
+
+    if content_type == 'text/html':
+        pass
+    elif content_type.startswith('text/html;'):
+        pass
+    else:
+        logger.debug(f'Unsupported content-type: {content_type} @ {url}')
+        return default
 
     soup = BeautifulSoup(r.text, 'html.parser')
-    title = soup.title.text
-    author = get_author(url, soup)  
+    title = soup.title
+    if title is None:
+        logger.warning(f'Error inspecting page without title: {url}')
+        return url
+    title = clean_whitespaces( title.text )
+    author = get_author(url, soup)
 
     if title.endswith(' - YouTube'):
         title = title.replace(' - YouTube', '')
