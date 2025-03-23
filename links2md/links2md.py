@@ -73,7 +73,6 @@ def clean_whitespaces(text):
     text = text.strip()
     return ' '.join( text.split() )
 
-
 do_not_visit_suffixes = [ '.mp3', '.pdf' ]
 
 def process(url):
@@ -88,14 +87,20 @@ def process(url):
 
     r = None
     try:
-        r = requests.get(url)
+        headers = {
+                'user-agent': 'curl/8.5.0',
+                'accept': '*/*' }
+        r = requests.get(url, headers=headers)
+        #r = requests.get(url)
     except Exception as e:
         logger.debug(f'{url} {e}')
         ex = type(e).__name__
         return f'{default} `{ex}`'
 
     if r.status_code != 200:
-       return f'{default} `{r.status_code}`'
+        text = clean_whitespaces( r.text )
+        logger.debug(f'{url} {r.status_code} {r.reason} {text}')
+        return f'{default} `{r.status_code}` `{r.reason}`'
 
     content_type = None
     if 'content-type' in r.headers:
