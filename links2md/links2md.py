@@ -6,6 +6,7 @@ import json
 import logging
 import re
 import requests
+import time
 import sys
 
 def logging_setup(level):
@@ -84,6 +85,9 @@ def process(url):
     for suffix in do_not_visit_suffixes:
         if url.endswith(suffix):
             return default
+
+    # reduce chance of being considered spammy
+    time.sleep(0.3)
 
     r = None
     try:
