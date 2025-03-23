@@ -30,6 +30,32 @@ def unshorten(url):
     return url
 
 
+def parse_application_ld_json(script):
+    site = None
+    authors = []
+
+    script_text = script.string
+    jj = json.loads(script_text)
+
+    # Some websites return object, some return list of object...
+    # Canonicalize
+    if not isinstance(jj, list):
+        jj = [ jj ]
+
+    for j in jj:
+        if 'publisher' in j:
+            publisher = j['publisher']
+            if 'name' in publisher:
+                name = publisher['name']
+                site = site or name
+        if 'author' in j:
+            author = j['author']
+            if 'name' in author:
+                name = author['name']
+                if name not in authors:
+                    authors.append(name)
+    return site, authors
+
 def get_site_author(url, soup):
     site = None
     authors = [ ]
@@ -67,14 +93,11 @@ def get_site_author(url, soup):
         if script.has_attr('type'):
             _type = script['type']
             if _type == 'application/ld+json':
-                script_text = script.string
-                j = json.loads(script_text)
-                if 'author' in j:
-                    author = j['author']
-                    if 'name' in author:
-                        name = author['name']
-                        if name not in authors:
-                            authors.append(name)
+                _s, _a = parse_application_ld_json( script )
+                site = site or _s
+                for name in _a:
+                    if name not in authors:
+                        authors.append(name)
 
     logger.debug(f'Authors: {authors} @ {url}')
     logger.debug(f'Site: {site} @ {url}')
