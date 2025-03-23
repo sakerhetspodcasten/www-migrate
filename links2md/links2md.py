@@ -33,6 +33,7 @@ def unshorten(url):
 def get_site_author(url, soup):
     site = None
     authors = [ ]
+
     metas = soup.head.find_all('meta')
     for meta in metas:
         #<meta property="og:site_name" content="Ars Technica" />
@@ -50,9 +51,9 @@ def get_site_author(url, soup):
                     author = j['author']
                     if author not in authors:
                         authors.append(author)
+
     links = soup.head.find_all('link')
     for link in links:
-        #logger.debug(f'{url} link: {link}')
         #youtube: <link content="Rick Astley" itemprop="name"/>
         if link.has_attr('itemprop') and link.has_attr('content'):
             itemprop = link['itemprop']
@@ -60,6 +61,21 @@ def get_site_author(url, soup):
             if itemprop == 'name':
                 if content not in authors:
                     authors.append(content)
+
+    scripts = soup.head.find_all('script')
+    for script in scripts:
+        if script.has_attr('type'):
+            _type = script['type']
+            if _type == 'application/ld+json':
+                script_text = script.string
+                j = json.loads(script_text)
+                if 'author' in j:
+                    author = j['author']
+                    if 'name' in author:
+                        name = author['name']
+                        if name not in authors:
+                            authors.append(name)
+
     logger.debug(f'Authors: {authors} @ {url}')
     logger.debug(f'Site: {site} @ {url}')
     author = None
