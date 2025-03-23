@@ -49,11 +49,16 @@ def parse_application_ld_json(script):
                 name = publisher['name']
                 site = site or name
         if 'author' in j:
-            author = j['author']
-            if 'name' in author:
-                name = author['name']
-                if name not in authors:
-                    authors.append(name)
+            _author = j['author']
+            # Some websites return object, some return list of object...
+            # Canonicalize
+            if not isinstance(_author, list):
+                _author = [ _author ]
+            for author in _author:
+                if 'name' in author:
+                    name = author['name']
+                    if name not in authors:
+                        authors.append(name)
     return site, authors
 
 def get_site_author(url, soup):
