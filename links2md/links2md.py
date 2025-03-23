@@ -6,6 +6,7 @@ import json
 import logging
 import re
 import requests
+import sys
 
 def logging_setup(level):
     global logger
@@ -143,6 +144,12 @@ def process(url):
     return f'* [{title}]({url}){tag}'
 
 
+def process_lines(lines, out):
+    for line in lines:
+        processed = process( line )
+        print(processed, file = out)
+
+
 def main():
     parser = argparse.ArgumentParser(
             prog = 'links2md.py',
@@ -154,8 +161,9 @@ def main():
             help = 'text file with urls to consume')
     parser.add_argument('--output', '-o',
             dest = "output_file",
-            required = True,
-            help = 'text file with urls to consume')
+            default = None,
+            required = False,
+            help = 'text file with urls to consume. Default is stdout.')
     parser.add_argument('--loglevel',
             dest = 'loglevel',
             default = 'INFO',
@@ -165,10 +173,11 @@ def main():
     logging_setup(args.loglevel)
 
     lines = readfile( args.input_file )
-    with open( args.output_file, 'a' ) as f:
-        for line in lines:
-            out = process( line )
-            print(out, file = f)
+    if args.output_file is None:
+        process_lines( lines, sys.stdout )
+    else:
+        with open( args.output_file, 'a' ) as f:
+            process_lines( lines, f )
 
 if __name__ == "__main__":
     main()
