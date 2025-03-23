@@ -172,6 +172,9 @@ def process(url):
 
     title_prefix = None
     if site is not None:
+        if site == 'the Guardian':
+            site = 'The Guardian'
+
         if title.endswith(' - ' + site):
             title = title.replace(' - ' + site, '')
         elif title.endswith(' | ' + site):
