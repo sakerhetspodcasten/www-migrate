@@ -135,6 +135,8 @@ def process(url):
     if site is not None:
         if title.endswith(' - ' + site):
             title = title.replace(' - ' + site, '')
+        elif title.endswith(' | ' + site):
+            title = title.replace(' | ' + site, '')
         if site not in title:
             title_prefix = site
     if author is not None:
