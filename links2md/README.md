@@ -3,7 +3,7 @@
 Create Markdown documents from list of links/URLs.
 
 Features:
-* title from `head.title` metadata
+* title from metadata
 * Publisher/site from metadata
 * Authors from metadata
 
@@ -11,6 +11,7 @@ Features:
 
 Various metadata supported:
 
+* `head.title`
 * `head.meta`
   * `og:site_name`
   * `parsely-page` JSON

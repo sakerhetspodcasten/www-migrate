@@ -9,6 +9,7 @@ to live free as Markdown `.md` files!
 
 Tools:
 * [Libsyn/RSS migration tool](#libsynrss-migration-tool) - import libsyn episodes.
+* [Links to Markdown tool](#links-to-markdown-tool)
 * [SRT to Markdown tool](#srt-to-markdown-tool) - import Sub Rip Text transcribe files.
 * [Tagging](#tagging) - tools for searching or adding tags.
 * [Wordpress migration tool](#wordpress-migration-tool) (_note: abandoned_).
@@ -43,6 +44,12 @@ RSS to Markdown/Yaml/GLFM converter.
 * [rss/README.md](rss/README.md)
 * Pretty usable for our specific needs.
 * Emits MP3 link, duration etc. into Markdown.
+
+### Links to Markdown tool
+
+* [links2md/README.md](links2md/README.md)
+* Generate markdown pages from list of links
+* Obtain title, site/publisher, authors etc. automatic.
 
 ### SRT to Markdown tool
 
