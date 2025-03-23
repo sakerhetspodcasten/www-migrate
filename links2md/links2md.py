@@ -2,6 +2,7 @@
 
 import argparse
 from bs4 import BeautifulSoup
+import json
 import logging
 import re
 import requests
@@ -27,17 +28,44 @@ def unshorten(url):
     return url
 
 
-def get_author(url, soup):
+def get_site_author(url, soup):
+    site = None
+    authors = [ ]
+    metas = soup.head.find_all('meta')
+    for meta in metas:
+        #<meta property="og:site_name" content="Ars Technica" />
+        if meta.has_attr('property') and meta.has_attr('content'):
+            _property = meta['property']
+            content = meta['content']
+            if _property == 'og:site_name':
+                site = content
+        if meta.has_attr('name') and meta.has_attr('content'):
+            name = meta['name']
+            content = meta['content']
+            if name == 'parsely-page':
+                j = json.loads(content)
+                if 'author' in j:
+                    author = j['author']
+                    if author not in authors:
+                        authors.append(author)
     links = soup.head.find_all('link')
     for link in links:
-        logger.debug(f'{url} link: {link}')
+        #logger.debug(f'{url} link: {link}')
         #youtube: <link content="Rick Astley" itemprop="name"/>
         if link.has_attr('itemprop') and link.has_attr('content'):
-            itemprop = link.itemprop
-            content = link.content
+            itemprop = link['itemprop']
+            content = link['content']
             if itemprop == 'name':
-                return content
-    return None
+                if content not in authors:
+                    authors.append(content)
+    logger.debug(f'Authors: {authors} @ {url}')
+    logger.debug(f'Site: {site} @ {url}')
+    author = None
+    if len(authors) == 0:
+        pass
+    else:
+        author = ",".join(authors)
+    return site, author
 
 
 def clean_whitespaces(text):
@@ -91,13 +119,23 @@ def process(url):
         logger.warning(f'Error inspecting page without title: {url}')
         return url
     title = clean_whitespaces( title.text )
-    author = get_author(url, soup)
+    site, author = get_site_author(url, soup)
 
-    if title.endswith(' - YouTube'):
-        title = title.replace(' - YouTube', '')
+    title_prefix = None
+    if site is not None:
+        if title.endswith(' - ' + site):
+            title = title.replace(' - ' + site, '')
+        if site not in title:
+            title_prefix = site
     if author is not None:
         if not author in title:
-            title = author + ': ' + title
+            if title_prefix is None:
+                title_prefix = author
+            else:
+                title_prefix = title_prefix + '/ ' + author
+    if title_prefix is not None:
+        title = title.replace(': ', ' - ')
+        title = title_prefix + ': ' + title
 
     tag = ''
     if url.startswith('https://www.youtube.com/watch'):
@@ -114,6 +152,10 @@ def main():
             dest = "input_file",
             required = True,
             help = 'text file with urls to consume')
+    parser.add_argument('--output', '-o',
+            dest = "output_file",
+            required = True,
+            help = 'text file with urls to consume')
     parser.add_argument('--loglevel',
             dest = 'loglevel',
             default = 'INFO',
@@ -123,9 +165,10 @@ def main():
     logging_setup(args.loglevel)
 
     lines = readfile( args.input_file )
-    for line in lines:
-        out = process( line )
-        print(out)
+    with open( args.output_file, 'a' ) as f:
+        for line in lines:
+            out = process( line )
+            print(out, file = f)
 
 if __name__ == "__main__":
     main()
