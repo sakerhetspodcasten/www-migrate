@@ -144,7 +144,7 @@ def get_site_author(url, soup):
     if len(authors) == 0:
         pass
     else:
-        author = ",".join(authors)
+        author = ", ".join(authors)
     return site, author
 
 
