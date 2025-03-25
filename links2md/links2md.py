@@ -9,12 +9,17 @@ import requests
 import time
 import sys
 
+
+logger = None
+
+
 def logging_setup(level):
     global logger
     logger = logging.getLogger(__name__)
     logger.setLevel(level)
     FORMAT = '%(asctime)s %(levelname)-s %(message)s'
     logging.basicConfig(format = FORMAT)
+
 
 def readfile(filename):
     lines = []
