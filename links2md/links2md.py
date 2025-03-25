@@ -152,7 +152,6 @@ def clean_whitespaces(text):
     text = text.strip()
     return ' '.join( text.split() )
 
-do_not_visit_suffixes = [ '.mp3', '.pdf' ]
 
 def process(url):
     if not url.startswith('https://'):
@@ -161,6 +160,8 @@ def process(url):
     url = remove_garbage_params(url)
 
     default = f'* {url}'
+
+    do_not_visit_suffixes = [ '.mp3', '.pdf' ]
     for suffix in do_not_visit_suffixes:
         if url.endswith(suffix):
             return default
