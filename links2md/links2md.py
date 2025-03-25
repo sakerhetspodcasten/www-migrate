@@ -30,8 +30,37 @@ def readfile(filename):
 
 
 def unshorten(url):
-    if url.startswith('http://youtu.be/'):
-        url = url.replace('http://youtu.be/', 'http://www.youtube.com/watch?v=')
+    if url.startswith('https://youtu.be/'):
+        url = url.replace('?', '&')
+        url = url.replace('https://youtu.be/', 'https://www.youtube.com/watch?v=')
+    return url
+
+
+def append_params_to_url(url, param):
+    if url is None:
+        return param
+    elif '?' in url:
+        return url + '&' + param
+    else:
+        return url + '?' + param
+
+
+def remove_garbage_params(url):
+    us = re.split('\\?|\\&', url)
+
+    if url.startswith('https://www.youtube.com/'):
+        url = None
+        for split in us:
+            if split.startswith("si="):
+                continue
+            url = append_params_to_url(url, split)
+        return url
+
+    if len(us) == 2:
+        if us[1] == 'm=1':
+            # remove anying is mobile marker
+            return us[0]
+
     return url
 
 
@@ -129,6 +158,7 @@ def process(url):
     if not url.startswith('https://'):
         return url
     url = unshorten(url)
+    url = remove_garbage_params(url)
 
     default = f'* {url}'
     for suffix in do_not_visit_suffixes:
