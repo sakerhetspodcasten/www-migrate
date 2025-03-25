@@ -10,9 +10,14 @@ fi
 
 source .venv/bin/activate
 
-if [[ -f requirements.txt ]]
+if [[ -f requirements.lock ]]
+then
+	pip3 install -r requirements.lock
+
+elif [[ -f requirements.txt ]]
 then
 	pip3 install -r requirements.txt
+
 else
 	pip3 install -r requirements.in
 	pip3 freeze > requirements.txt

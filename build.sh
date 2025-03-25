@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 set -x
 
 REQUIREMENT_TXT=keep
 RELEASE_SUFFIX=""
-if [ "$1" = "release" ]
+if [[ "$1" == "release" ]]
 then
 	REQUIREMENT_TXT=refresh
 	RELEASE_SUFFIX="-release"
@@ -21,21 +21,25 @@ podman build \
 	-t "$IMAGE_TAG" \
 	.
 
-if [ "$REQUIREMENT_TXT" = "refresh" ]
+copy_from_image() {
+	project="$1"
+	shift
+
+	for file in "$@"
+	do
+		file="$2"
+		podman run --rm -v "$OUTDIR":/out:rw "$IMAGE_TAG" \
+cp "/build/$project/$file" "/out/$project-$file"
+		cp -- "out/$project-$file" "$project/$file"
+	done
+}
+
+if [[ "$REQUIREMENT_TXT" == "refresh" ]]
 then
 	mkdir -p -- "$OUTDIR"
 
-	podman run --rm -v "$OUTDIR":/out:rw "$IMAGE_TAG" \
-		cp /build/rss/requirements.txt \
-		/out/rss-requirements.txt
-	podman run --rm -v "$OUTDIR":/out:rw "$IMAGE_TAG" \
-		cp /build/tagger/requirements.txt \
-		/out/tagger-requirements.txt
-	podman run --rm -v "$OUTDIR":/out:rw "$IMAGE_TAG" \
-		cp /build/wordpress/requirements.txt \
-		/out/wordpress-requirements.txt
-
-	cp -- "$OUTDIR/rss-requirements.txt" rss/requirements.txt
-	cp -- "$OUTDIR/tagger-requirements.txt" tagger/requirements.txt
-	cp -- "$OUTDIR/wordpress-requirements.txt" wordpress/requirements.txt
+	copy_from_image links2md requirements.txt requirements.lock
+	copy_from_image rss requirements.txt requirements.lock
+	copy_from_image tagger requirements.txt requirements.lock
+	copy_from_image wordpress requirements.txt requirements.lock
 fi

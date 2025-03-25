@@ -1,11 +1,12 @@
+*.md
 *.md.bak
 .*.sw?
-.piptools
-.piptools/**
 .venv
 .venv/**
+build.sh
 out
 out/**
+release.sh
 rss/libsyn-legacy/rss
 rss/test
 tagger/test/**
