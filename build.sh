@@ -3,6 +3,11 @@
 set -e
 set -x
 
+if which gitleaks
+then
+	gitleaks detect
+fi
+
 REQUIREMENT_TXT=keep
 RELEASE_SUFFIX=""
 if [[ "$1" == "release" ]]
