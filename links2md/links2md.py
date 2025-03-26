@@ -95,9 +95,10 @@ def parse_application_ld_json(script):
                         authors.append(name)
     return site, authors
 
-def get_site_author(url, soup):
+def get_site_author_description(url, soup):
     site = None
     authors = [ ]
+    description = None
 
     metas = soup.head.find_all('meta')
     for meta in metas:
@@ -116,6 +117,8 @@ def get_site_author(url, soup):
                     author = j['author']
                     if author not in authors:
                         authors.append(author)
+            elif name == 'description':
+                description = content
 
     links = soup.head.find_all('link')
     for link in links:
@@ -145,7 +148,7 @@ def get_site_author(url, soup):
         pass
     else:
         author = ", ".join(authors)
-    return site, author
+    return site, author, description
 
 
 def clean_whitespaces(text):
@@ -209,7 +212,7 @@ def process(url):
         logger.warning(f'Error inspecting page without title: {url}')
         return url
     title = clean_whitespaces( title.text )
-    site, author = get_site_author(url, soup)
+    site, author, description = get_site_author_description(url, soup)
 
     title_prefix = None
     if site is not None:
@@ -231,6 +234,11 @@ def process(url):
     if title_prefix is not None:
         title = title.replace(': ', ' - ')
         title = title_prefix + ': ' + title
+
+    if description is not None:
+        if len(title) < 80:
+            description = clean_whitespaces( description )
+            title = title + ' - ' + description
 
     tag = ''
     if url.startswith('https://www.youtube.com/watch'):
