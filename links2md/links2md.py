@@ -235,10 +235,20 @@ def process(url):
         title = title.replace(': ', ' - ')
         title = title_prefix + ': ' + title
 
-    if description is not None:
-        if len(title) < 80:
-            description = clean_whitespaces( description )
-            title = title + ' - ' + description
+    skip_description = False
+    if description is None:
+        skip_description = True
+    if len(title) < 80:
+        skip_description = True
+    # blacklist of sites that tend to have unhelpful descriptions
+    skip_description_prefix_list = [ 'https://www.youtube.com/' ]
+    for prefix in skip_description_prefix_list:
+        if url.startswith(prefix):
+            skip_description = True
+            break
+    if not skip_description:
+        description = clean_whitespaces( description )
+        title = title + ' - ' + description
 
     tag = ''
     if url.startswith('https://www.youtube.com/watch'):
