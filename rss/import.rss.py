@@ -115,6 +115,20 @@ def libsyn_to_markdown(text):
     text = line_break_text( text )
     return text
 
+def guess_tags( title ):
+    if title is None:
+        return None
+    if not title.startswith( 'Säkerhetspodcasten '):
+        return None
+    tags = []
+    if 'Nyår' in title:
+        tags.append( 'Nyår' )
+    elif 'Ostrukturerat' in title:
+        tags.append( 'ostrukturerat' )
+    else:
+        tags.append( 'tema' )
+    return tags
+
 def ancient(st):
     if ancient_date is None:
         return False
@@ -173,6 +187,7 @@ def process_entry(e):
     links        = e['links']
     published_pp = timestruct_to_isoformat( published_p )
     mp3 = gimme_mp3(links)
+    tags = guess_tags( title )
 
     if not overwrite:
         if os.path.exists(fname_full):
@@ -186,6 +201,8 @@ def process_entry(e):
         header = {}
         header['title'] = title
         header['date'] = published_pp
+        if tags is not None:
+            header['tags'] = tags
         header_yaml = yaml.dump(header)
         md_content = libsyn_to_markdown(summary)
         f.write("---\n")
