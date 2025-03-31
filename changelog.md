@@ -1,5 +1,8 @@
 # v0.0.4
 
+> Links to Markdown support.
+> requirements.lock (hash) support.
+
 Files:
 ``` plain
 A	.dockerignore
@@ -51,6 +54,8 @@ Commits:
 
 # v0.0.3
 
+> Documentation and build scripts updates only.
+
 Files:
 ``` plain
 M	Dockerfile
@@ -69,6 +74,8 @@ Commits:
 ```
 
 # v0.0.2
+
+> Tag md/yaml support added.
 
 Files:
 ``` plain
@@ -109,6 +116,12 @@ Commits:
 ```
 
 # v0.0.1
+
+> Libsyn/RSS import.
+> srt2md.
+> requirements.txt.
+> wordpress schema.
+> release scripts.
 
 Files:
 ``` plain
@@ -211,6 +224,8 @@ Commits:
 ```
 
 # v0.0.0
+
+> Git initialization, root.
 
 Commits:
 ``` plain
