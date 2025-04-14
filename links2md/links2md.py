@@ -96,29 +96,33 @@ def parse_application_ld_json(script):
     return site, authors
 
 def get_site_author_description(url, soup):
+    head = soup.head
+    if head is None:
+        return None, None, None
+
     site = None
     authors = [ ]
     description = None
 
     metas = soup.head.find_all('meta')
-    for meta in metas:
-        #<meta property="og:site_name" content="Ars Technica" />
-        if meta.has_attr('property') and meta.has_attr('content'):
-            _property = meta['property']
-            content = meta['content']
-            if _property == 'og:site_name':
-                site = content
-        if meta.has_attr('name') and meta.has_attr('content'):
-            name = meta['name']
-            content = meta['content']
-            if name == 'parsely-page':
-                j = json.loads(content)
-                if 'author' in j:
-                    author = j['author']
-                    if author not in authors:
-                        authors.append(author)
-            elif name == 'description':
-                description = content
+    if metas is not None:
+        for meta in metas:
+            if meta.has_attr('property') and meta.has_attr('content'):
+                _property = meta['property']
+                content = meta['content']
+                if _property == 'og:site_name':
+                    site = content
+            if meta.has_attr('name') and meta.has_attr('content'):
+                name = meta['name']
+                content = meta['content']
+                if name == 'parsely-page':
+                    j = json.loads(content)
+                    if 'author' in j:
+                        author = j['author']
+                        if author not in authors:
+                            authors.append(author)
+                elif name == 'description':
+                    description = content
 
     links = soup.head.find_all('link')
     for link in links:
@@ -226,11 +230,14 @@ def process(url):
         if site not in title:
             title_prefix = site
     if author is not None:
-        if not author in title:
-            if title_prefix is None:
-                title_prefix = author
-            else:
-                title_prefix = title_prefix + '/ ' + author
+        if title is None:
+            title = author
+        else:
+            if not author in title:
+                if title_prefix is None:
+                    title_prefix = author
+                else:
+                    title_prefix = title_prefix + '/ ' + author
     if title_prefix is not None:
         title = title.replace(': ', ' - ')
         title = title_prefix + ': ' + title
