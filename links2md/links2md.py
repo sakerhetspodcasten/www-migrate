@@ -181,7 +181,7 @@ def process(url):
         headers = {
                 'user-agent': 'curl/8.5.0',
                 'accept': '*/*' }
-        r = requests.get(url, headers=headers)
+        r = requests.get(url, headers=headers, timeout=3)
         #r = requests.get(url)
     except Exception as e:
         logger.debug(f'{url} {e}')
