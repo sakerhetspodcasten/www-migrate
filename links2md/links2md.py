@@ -69,7 +69,13 @@ def parse_application_ld_json(script):
     authors = []
 
     script_text = script.string
-    jj = json.loads(script_text)
+    try:
+        jj = json.loads(script_text)
+    except:
+        logger.warning('Invalid <script type="application/ld+json">... did not parse')
+        logger.debug(f'json: {script_text}')
+        return site, authors
+
 
     # Some websites return object, some return list of object...
     # Canonicalize
