@@ -21,11 +21,10 @@ def logging_setup(level):
     logging.basicConfig(format = FORMAT)
 
 
-def readfile(filename):
+def readfile(file):
     lines = []
-    with open(filename) as file:
-        while line := file.readline():
-            lines.append( line.rstrip() )
+    while line := file.readline():
+        lines.append( line.rstrip() )
     return lines
 
 
@@ -283,7 +282,7 @@ def main():
     parser.add_argument('--input', '-i',
             dest = "input_file",
             required = True,
-            help = 'text file with urls to consume')
+            help = 'text file with urls to consume. - for stdin.')
     parser.add_argument('--output', '-o',
             dest = "output_file",
             default = None,
@@ -297,7 +296,13 @@ def main():
 
     logging_setup(args.loglevel)
 
-    lines = readfile( args.input_file )
+    lines = None
+    if args.input_file == "-":
+        lines = readfile(sys.stdin)
+    else:
+        with open(args.input_file) as file:
+            lines = readfile(file)
+
     if args.output_file is None:
         process_lines( lines, sys.stdout )
     else:
