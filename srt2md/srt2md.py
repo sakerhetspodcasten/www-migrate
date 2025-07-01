@@ -15,11 +15,35 @@ def srt2md(header, file_in, file_out):
                 print(f"{header} {t0} {t1}", file=file_out)
                 buf.clear()
             else:
-                print(t0, file=file_out)
+                md = cleanup_markdown(t0)
+                print(md, file=file_out)
                 del buf[0]
 
     for line in buf:
         print(line, file=file_out)
+
+# Google SRT may replace profanity with e.g. "f****"
+#
+# This is a bit of a overkill,
+#   basically just replace **** with \*\*\*\*
+#   with a more pedantic rule set...
+#
+# https://github.com/mattcone/markdown-guide/blob/master/_basic-syntax/escaping-characters.md
+#
+def cleanup_markdown(transcription):
+    out = ""
+    special_long  = "\\`*_{}[]<>()#+-.!|"
+    special_short = "\\`*_{}[]<>()#+!|"
+    special = special_long
+    for c in transcription:
+        if c in special:
+            out += "\\"
+        out += c
+        if c != " ":
+            # '-' no longer means start of list...
+            # - and . looks annoying when replaced in general text.
+            special = special_short
+    return out
 
 def main():
     parser = argparse.ArgumentParser(
