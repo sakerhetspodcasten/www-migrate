@@ -6,15 +6,6 @@ import yaml
 # Global variables, arguments
 logger = None
 
-def add_tag(y, tag):
-    tags=[]
-    if "tags" in y:
-        tags=y["tags"]
-    if tag in tags:
-        return
-    tags.append(tag)
-    y["tags"]=tags
-
 def logging_setup(level):
     global logger
     logger = logging.getLogger(__name__)
@@ -66,7 +57,7 @@ def emit(file, header, content):
             f.write(line.encode('utf-8'))
             f.write(linefeed)
 
-def process(file, tag):
+def process(file):
     if not os.path.isfile(file):
         logger.warning(f'File does not exists: {file}')
         return
@@ -81,26 +72,15 @@ def process(file, tag):
         logger.warning(f'Skip {file} due to empty content')
         return
 
-    logger.debug(f"before: {header}")
-    for t in tag.split(","):
-        add_tag(header, t)
     logger.debug(f"after: {header}")
 
     emit(file, header, content)
 
 def main():
     parser = argparse.ArgumentParser(
-            prog = 'tagmd.py',
-            description = 'add tags to yaml/md contant files',
+            prog = 'fix_unicode.py',
+            description = 'just reads the file and emits it (fixing yaml error)',
             epilog = 'Hope this help was helpful! :-)')
-    parser.add_argument('--tag', '-t',
-            dest = 'tag',
-            required = True,
-            help = 'tag to add to markdown files. Sperate multiple tags with comma.')
-    parser.add_argument('--dir', '-d',
-            dest = 'dir',
-            default = None,
-            help = 'directory prefix to append to file names')
     parser.add_argument('file',
             nargs='+',
             help = 'files to process')
@@ -113,9 +93,7 @@ def main():
     logging_setup(args.loglevel)
 
     for file in args.file:
-        if args.dir:
-            file=os.path.join(args.dir, file)
-        process(file, args.tag)
+        process(file)
 
 if __name__ == "__main__":
     main()

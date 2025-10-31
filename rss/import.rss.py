@@ -197,21 +197,29 @@ def process_entry(e):
 
     counter_updated += 1
     logger.info(f"Update: {fname_full}")
-    with open(fname_full, "w") as f:
-        header = {}
-        header['title'] = title
-        header['date'] = published_pp
-        if tags is not None:
-            header['tags'] = tags
-        header_yaml = yaml.dump(header)
-        md_content = libsyn_to_markdown(summary)
-        f.write("---\n")
-        f.write(header_yaml)
-        f.write("---\n")
-        f.write("## Lyssna\n")
-        f.write(f"* [mp3]({mp3}), längd: {duration}\n\n")
-        f.write("## Innehåll\n")
-        f.write(md_content)
+
+    header = {}
+    header['title'] = title
+    header['date'] = published_pp
+    if tags is not None:
+        header['tags'] = tags
+
+    md_content = libsyn_to_markdown(summary)
+    msg = "## Lyssna\n" + \
+            f"* [mp3]({mp3}), längd: {duration}\n\n" + \
+            "## Innehåll\n" + \
+            md_content
+
+    seperator = '---\n'.encode('utf-8')
+    linefeed = '\n'.encode('utf-8')
+    encoded_header = yaml.dump(header, encoding="utf8", allow_unicode=True)
+    encoded_content = msg.encode('utf-8')
+
+    with open(fname_full, "wb") as f:
+        f.write(seperator)
+        f.write(encoded_header)
+        f.write(seperator)
+        f.write(encoded_content)
 
 def main():
     parser = argparse.ArgumentParser(
