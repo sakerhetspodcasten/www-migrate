@@ -57,14 +57,13 @@ def emit(file, header, content):
             f.write(line.encode('utf-8'))
             f.write(linefeed)
 
-def process(file, before, after):
+def process(file, args):
     if not os.path.isfile(file):
         logger.warning(f'File does not exists: {file}')
         return
     logger.info(f"Process {file}")
 
     header, content = parse(file)
-    
 
     if len(header) == 0:
         logger.warning(f'Skip {file} due to empty header')
@@ -81,7 +80,12 @@ def process(file, before, after):
         return
 
     logger.debug(f"before: {header}")
-    title = title.replace(before, after)
+    if args.old is not None:
+        title = title.replace(args.old, args.new)
+    if args.remove_en_dash:
+        title = title.replace("\u2013", "-")
+    if args.remove_em_dash:
+        title = title.replace("\u2014", "-")
     header['title'] = title
     logger.debug(f"after: {header}")
 
@@ -94,12 +98,18 @@ def main():
             epilog = 'Hope this help was helpful! :-)')
     parser.add_argument('--old-term',
             dest = 'old',
-            required = True,
             help = 'thing to search for.')
     parser.add_argument('--new-term',
             dest = 'new',
-            required = True,
             help = 'thing to replace with.')
+    parser.add_argument('--remove-en-dash',
+            dest = 'remove_en_dash',
+            action = argparse.BooleanOptionalAction,
+            help = 'remove annoying en dash')
+    parser.add_argument('--remove-em-dash',
+            dest = 'remove_em_dash',
+            action = argparse.BooleanOptionalAction,
+            help = 'remove annoying em dash')
     parser.add_argument('file',
             nargs='+',
             help = 'files to process')
@@ -111,8 +121,12 @@ def main():
 
     logging_setup(args.loglevel)
 
+    if (args.old is not None and args.new is None) or (args.new is not None and args.old is None):
+        logger.error("Inconsistent search configuration, --old-term and --new-term must both be set if either is set!")
+        raise SystemExit(1)
+
     for file in args.file:
-        process(file, args.old, args.new)
+        process(file, args)
 
 if __name__ == "__main__":
     main()
