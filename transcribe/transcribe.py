@@ -9,31 +9,45 @@ import tempfile
 import subprocess
 import sys
 
+def ingest_local_file(filename, download_dir):
+    with open(filename, 'rb') as f:
+        identifier = archive_file(download_dir, f)
+        return identifier
+
 def download(url, download_dir):
     with requests.get(url, stream=True) as r:
         r.raise_for_status()
         with tempfile.TemporaryFile(dir=download_dir) as f:
-            m = hashlib.sha256()
             for chunk in r.iter_content(chunk_size=8192):
                 f.write(chunk)
-                m.update(chunk)
 
-            identifier = m.hexdigest()
-            filename = os.path.join(download_dir, identifier)
-
-            if os.path.exists(filename):
-                print(f'Warning, allready exists {filename}', file=sys.stderr)
-                return identifier
-
-            f.seek(0)
-            with open(filename, 'wb') as f2:
-                while True:
-                    chunk = f.read(8192)
-                    if len(chunk) == 0:
-                        break
-                    f2.write(chunk)
-
+            identifier = archive_file(download_dir, f)
             return identifier
+
+def archive_file(download_dir, f):
+    f.seek(0)
+    m = hashlib.sha256()
+    while (chunk := f.read(8192)):
+        if len(chunk) == 0:
+            break
+        m.update(chunk)
+
+    identifier = m.hexdigest()
+
+    filename = os.path.join(download_dir, identifier)
+
+    if os.path.exists(filename):
+        print(f'Warning, allready exists {filename}', file=sys.stderr)
+        return identifier
+
+    f.seek(0)
+    with open(filename, 'wb') as f2:
+        while (chunk := f.read(8192)):
+            if len(chunk) == 0:
+                break
+            f2.write(chunk)
+
+    return identifier
 
 def parse_md(fname, transcribe_header):
     if not os.path.isfile(fname):
@@ -90,6 +104,65 @@ def cleanup_markdown(transcription):
             special = special_short
     return out
 
+def transcribe(args, md, identifier):
+    print(f"transcribe(..., {md}, {identifier}")
+    mp3_filename = os.path.join(args.dir_mp3, identifier)
+    srt = os.path.join(args.dir_trans, identifier + ".srt")
+    if not os.path.exists(srt):
+        subprocess.run([args.whisper_bin,
+                        "--model", "large",
+                        "--language", "Swedish",
+                        "--task", "transcribe",
+                        "--output_format", "all",
+                        "--output_dir", args.dir_trans,
+                        mp3_filename])
+    else:
+        print(f" * Allready transcribed: {srt}")
+
+    with open(srt) as file_in:
+        with open(md, "a") as file_out:
+            print("", file=file_out)
+            print(f"## {args.transcribe_header}", file=file_out)
+            print("", file=file_out)
+            print(f"_{args.transcribe_description}_", file=file_out)
+            print("", file=file_out)
+            srt2md(file_in, file_out)
+
+def main_special_case_args_is_md_mp3(args):
+
+    md = args.file[0]
+    mp3 = args.file[1]
+
+    parsed = parse_md(md, args.transcribe_header)
+    if parsed is None:
+        return SystemExit, 0
+    (mp3_2, transcribed) = parsed
+    if transcribed:
+        return SystemExit, 0
+    if mp3_2 is not None:
+        print(f"Error: Confused, specified MP3 file but Markdown also contains an MP3.")
+        return SystemExit, 1
+    print(f"{md}")
+    print(f' * mp3: {mp3}')
+
+    identifier = ingest_local_file(mp3, args.dir_mp3)
+    transcribe(args, md, identifier)
+    return SystemExit, 0
+
+def main_normal_case(args):
+    for file in args.file:
+        parsed = parse_md(file, args.transcribe_header)
+        if parsed is None:
+            continue
+        (mp3, transcribed) = parsed
+        if transcribed:
+            continue
+        print(f"{file}")
+        print(f' * mp3: {mp3}')
+        identifier = download(mp3, args.dir_mp3)
+        transcribe(args, file, identifier)
+    return SystemExit, 0
+
 def main():
     parser = argparse.ArgumentParser(
             prog = 'transcribe.py',
@@ -128,30 +201,24 @@ def main():
         print(f'Error: not a dir {args.dir_trans}', file=sys.stderr)
         return SystemExit, 1
 
+    if len(args.file) == 0:
+        print(f"File list empty, nothing to do.")
+        return SystemExit, 0
+
+    if len(args.file) == 2:
+        if args.file[0].endswith(".md"):
+            if args.file[1].endswith(".mp3"):
+                return main_special_case_args_is_md_mp3(args)
+
     for file in args.file:
-        parsed = parse_md(file, args.transcribe_header)
-        if parsed is None:
+        if file.endswith(".md"):
             continue
-        (mp3, transcribed) = parsed
-        if transcribed:
-            continue
-        print(f"{file}")
-        print(f' * mp3: {mp3}')
-        identifier = download(mp3, args.dir_mp3)
-        mp3_filename = os.path.join(args.dir_mp3, identifier)
-        srt = os.path.join(args.dir_trans, identifier + ".srt")
+        print(f"Error: bad filename {file}")
+        print("  - A list of .md files si valid.")
+        print("  - foo.md bar.mp3 combination is also valid");
+        return SystemExit, 1
 
-        if not os.path.exists(srt):
-            subprocess.run([args.whisper_bin, "--model", "large", "--language", "Swedish", "--task", "transcribe", "--output_format", "all", "--output_dir", args.dir_trans, mp3_filename])
-
-        with open(srt) as file_in:
-            with open(file, "a") as file_out:
-                print("", file=file_out)
-                print(f"## {args.transcribe_header}", file=file_out)
-                print("", file=file_out)
-                print(f"_{args.transcribe_description}_", file=file_out)
-                print("", file=file_out)
-                srt2md(file_in, file_out)
+    return main_normal_case(args)
 
 if __name__ == "__main__":
     main()
