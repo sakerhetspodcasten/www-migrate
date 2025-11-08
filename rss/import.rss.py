@@ -16,8 +16,9 @@ counter_processed = 0
 counter_skip_ancient = 0
 counter_skip_file_exists = 0
 counter_updated = 0
-logger = None
 dir_posts = None
+explicit_dl = None
+logger = None
 overwrite = None
 
 #
@@ -45,6 +46,10 @@ def dir_setup(fdir):
     if not os.path.exists(fdir):
         raise Exception(f"Directory {fdir} does not exists.")
     dir_posts = fdir
+
+def explicit_dl_setup(article_name):
+    global explicit_dl
+    explicit_dl = article_name
 
 def logging_setup(level):
     global logger
@@ -162,24 +167,39 @@ def process_rss(url):
     logger.info(f"Entries skipped due to file exists/no-overwrite: {counter_skip_file_exists}")
     logger.info(f"Files updated: {counter_updated}")
 
+def skip_entry(e):
+    global counter_skip_ancient
+    global explicit_dl
+
+    published   = e['published']
+    published_p = e['published_parsed']
+    title       = e['title']
+
+    if explicit_dl is not None:
+        if explicit_dl == title:
+            return False
+
+    if ancient(published_p):
+        counter_skip_ancient += 1
+        logger.debug(f"Skip {title}: Too old, {published}.")
+        return True
+
+    return False
+
 def process_entry(e):
     global counter_processed
-    global counter_skip_ancient
     global counter_skip_file_exists
     global counter_updated
 
     counter_processed += 1
 
-    published    = e['published']
     published_p  = e['published_parsed']
     title        = e['title']
 
     fname = generate_filename(title)
     fname_full = dir_posts + "/" + fname
 
-    if ancient(published_p):
-        counter_skip_ancient += 1
-        logger.debug(f"Skip {fname}: Too old, {published}.")
+    if skip_entry(e):
         return
 
     summary      = e['summary']
@@ -245,6 +265,10 @@ def main():
             dest = 'ancient_date',
             default = None,
             help = 'Date in YYYYMM format that is a post too old to migrate. Set to either of [None,none] to migrate all.')
+    parser.add_argument('--explicitly-dl-article',
+            dest = 'explicit_dl',
+            default = None,
+            help = 'Explicitly download article with title matching this')
     parser.add_argument('--loglevel',
             dest = 'loglevel',
             default = 'INFO',
@@ -262,6 +286,7 @@ def main():
     ancient_setup(args.ancient_date)
     dir_setup(args.dir)
     overwrite_setup(args.overwrite)
+    explicit_dl_setup(args.explicit_dl)
     #
     # Actually run the program
     #
